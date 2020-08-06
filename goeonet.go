@@ -27,7 +27,11 @@ type EventCollection struct {
 var client = http.Client{Timeout: 5 * time.Second}
 
 func main() {
-  eventCollection := GetRecentOpenEvents()
+  eventCollection, err := GetRecentOpenEvents()
+
+  if err != nil {
+    log.Fatal("GetRecentOpenEvents: ", err)
+  }
 
   for _, event := range eventCollection.Events {
     fmt.Printf("ID: %s\nTitle: %s\nSources:\n", event.Id, event.Title)
@@ -38,18 +42,18 @@ func main() {
   }
 }
 
-func GetRecentOpenEvents() (EventCollection, error){
-  request, err := http.NewRequest("GET", "https://eonet.sci.gsfc.nasa.gov/api/v3/events?status=open&limit=10", nil)
+func GetRecentOpenEvents() (*EventCollection, error){
+   request, err := http.NewRequest("GET", "https://eonet.sci.gsfc.nasa.gov/api/v3/events?status=open&limit=10", nil)
+
+   if err != nil {
+     return nil, err
+   }
+
+	response, err := client.Do(request)
 
   if err != nil {
     return nil, err
   }
-
-	response, err := client.Do(request)
-
-	if err != nil {
-		return nil, err
-	}
 
   defer response.Body.Close()
 
@@ -65,5 +69,5 @@ func GetRecentOpenEvents() (EventCollection, error){
     return nil, err
   }
 
-  return eventCollection, nil
+  return &eventCollection, nil
 }
