@@ -1,6 +1,7 @@
-package goeonet
+package main
 
 import (
+  "encoding/json"
   "fmt"
   "log"
   "io/ioutil"
@@ -8,34 +9,61 @@ import (
   "time"
 )
 
+type Source struct {
+  Id  string `json:"id"`
+  Url string `json:"url"`
+}
+
+type Event struct {
+  Id      string   `json:"id"`
+  Title   string   `json:"title"`
+  Sources []Source `json:"sources"`
+}
+
+type EventCollection struct {
+  Events []Event `json:"events"`
+}
 
 var client = http.Client{Timeout: 5 * time.Second}
 
 func main() {
-  GetRecentOpenEvents()
+  eventCollection := GetRecentOpenEvents()
+
+  for _, event := range eventCollection.Events {
+    fmt.Printf("ID: %s\nTitle: %s\nSources:\n", event.Id, event.Title)
+    for _, source := range event.Sources {
+      fmt.Printf("\tURL: %s\n", source.Url)
+    }
+    fmt.Println()
+  }
 }
 
-func GetRecentOpenEvents() {
-  req, err := http.NewRequest("GET", "https://eonet.sci.gsfc.nasa.gov/api/v3/events", nil)
+func GetRecentOpenEvents() (EventCollection, error){
+  request, err := http.NewRequest("GET", "https://eonet.sci.gsfc.nasa.gov/api/v3/events?status=open&limit=10", nil)
 
   if err != nil {
-    log.Fatal("NewRequest: ", err)
+    return nil, err
   }
 
-  req.Header.Add("status", "open")
-  req.Header.Add("limit", "20")
+	response, err := client.Do(request)
 
-  resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+  defer response.Body.Close()
+
+  responseData, err := ioutil.ReadAll(response.Body)
 
   if err != nil {
-    log.Fatal("Do: ", err)
+    return nil, err
   }
 
-  responseData, err := ioutil.ReadAll(resp.Body)
+  var eventCollection EventCollection
 
-  if err != nil {
-    log.Fatal("ReadAll: ", err)
+  if err := json.Unmarshal(responseData, &eventCollection); err != nil {
+    return nil, err
   }
 
-  fmt.Println(responseData)
+  return eventCollection, nil
 }
