@@ -33,12 +33,31 @@ type Coordinates struct {
   Coordinates [][]float64
 }
 
+func (c *Coordinates) UnmarshalJSON(data []byte) error {
+  dataString := strings.Replace(string(data), " ", "", -1)
+  dataString = strings.Replace(dataString, "],", "", -1)
+  dataString = strings.Replace(dataString, "]", "", -1)
+  dataString = strings.Replace(dataString, "[[", "", -1)
+  coordinates := make([][]float64, 0)
+  for _, coords := range strings.Split(dataString[1:], "[") {
+    coordArr := make([]float64, 0)
+    split := strings.Split(coords, ",")
+    coord1, _ := strconv.ParseFloat(split[0], 64)
+    coord2, _ := strconv.ParseFloat(split[1], 64)
+    coordArr = append(coordArr, coord1)
+    coordArr = append(coordArr, coord2)
+    coordinates = append(coordinates, coordArr)
+  }
+  c.Coordinates = coordinates
+  return nil
+}
+
 type Geometry struct {
   MagnitudeValue float64     `json:"magnitudeValue"`
   MagnitudeUnit  string      `json:"magnitudeUnit"`
   Date           string      `json:"date"`
   Type           string      `json:"type"`
-  Coords         Coordinates `json:"coordinates"`
+  Coordinates    Coordinates `json:"coordinates"`
 }
 
 type Event struct {
@@ -59,25 +78,6 @@ type EventCollection struct {
   Events      []Event `json:"events"`
 }
 
-func (c *Coordinates) UnmarshalJSON(data []byte) error {
-  dataString := strings.Replace(string(data), " ", "", -1)
-  dataString = strings.Replace(dataString, "],", "", -1)
-  dataString = strings.Replace(dataString, "]", "", -1)
-  dataString = strings.Replace(dataString, "[[", "", -1)
-  coordinates := make([][]float64, 0)
-  for _, coords := range strings.Split(dataString[1:], "[") {
-    coordArr := make([]float64, 0)
-    split := strings.Split(coords, ",")
-    coord1, _ := strconv.ParseFloat(split[0], 64)
-    coord2, _ := strconv.ParseFloat(split[1], 64)
-    coordArr = append(coordArr, coord1)
-    coordArr = append(coordArr, coord2)
-    coordinates = append(coordinates, coordArr)
-  }
-  c.Coordinates = coordinates
-  return nil
-}
-
 var client = http.Client{Timeout: 5 * time.Second}
 
 func main() {
@@ -93,7 +93,7 @@ func main() {
       fmt.Printf("\tURL: %s\n", source.Url)
     }
     for _, geometry := range event.Geometrics {
-      for _, coords := range geometry.Coords.Coordinates {
+      for _, coords := range geometry.Coordinates.Coordinates {
         fmt.Printf("\tCoordinates: %f, %f\n", coords[0], coords[1])
       }
     }
@@ -171,8 +171,6 @@ func queryApi(url string) ([]byte, error) {
   if err != nil {
     return nil, err
   }
-
-  fmt.Println(string(responseData))
 
   return responseData, nil
 }
