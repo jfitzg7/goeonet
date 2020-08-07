@@ -70,10 +70,26 @@ func main() {
 }
 
 func GetRecentOpenEvents(limit int) (*EventCollection, error){
-  limitParam := fmt.Sprintf("limit=%d", limit)
-  request, _ := http.NewRequest("GET", baseEventsUrl + "?status=open&" + limitParam, nil)
+  url := fmt.Sprintf("%s?status=open&limit=%d", baseEventsUrl, limit)
+  responseData, err := queryApi(url)
 
-	response, err := client.Do(request)
+  var eventCollection EventCollection
+
+  if err := json.Unmarshal(responseData, &eventCollection); err != nil {
+    return nil, err
+  }
+
+  return &eventCollection, nil
+}
+
+func GetEventsByDate(startDate, endDate string) (*EventCollection, error) {
+
+}
+
+func queryApi(url string) ([]byte, error) {
+  request, _ := http.NewRequest("GET", url, nil)
+
+  response, err := client.Do(request)
   if err != nil {
     return nil, err
   }
@@ -85,11 +101,5 @@ func GetRecentOpenEvents(limit int) (*EventCollection, error){
     return nil, err
   }
 
-  var eventCollection EventCollection
-
-  if err := json.Unmarshal(responseData, &eventCollection); err != nil {
-    return nil, err
-  }
-
-  return &eventCollection, nil
+  return responseData
 }
