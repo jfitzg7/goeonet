@@ -10,7 +10,9 @@ import (
 )
 
 const (
-  baseUrl = "https://eonet.sci.gsfc.nasa.gov/api/v3/events"
+  baseEventsUrl =     "https://eonet.sci.gsfc.nasa.gov/api/v3/events"
+  baseCategoriesUrl = "https://eonet.sci.gsfc.nasa.gov/api/v3/categories"
+  baseLayersUrl =     "https://eonet.sci.gsfc.nasa.gov/api/v3/layers"
 )
 
 type Category struct {
@@ -69,7 +71,7 @@ func main() {
 
 func GetRecentOpenEvents(limit int) (*EventCollection, error){
   limitParam := fmt.Sprintf("limit=%d", limit)
-  request, _ := http.NewRequest("GET", baseUrl + "?status=open&" + limitParam, nil)
+  request, _ := http.NewRequest("GET", baseEventsUrl + "?status=open&" + limitParam, nil)
 
 	response, err := client.Do(request)
   if err != nil {
