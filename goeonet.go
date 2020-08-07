@@ -2,6 +2,7 @@ package main
 
 import (
   "encoding/json"
+  "errors"
   "fmt"
   "log"
   "io/ioutil"
@@ -10,6 +11,7 @@ import (
 )
 
 const (
+  layoutISO =         "2006-01-02"
   baseEventsUrl =     "https://eonet.sci.gsfc.nasa.gov/api/v3/events"
   baseCategoriesUrl = "https://eonet.sci.gsfc.nasa.gov/api/v3/categories"
   baseLayersUrl =     "https://eonet.sci.gsfc.nasa.gov/api/v3/layers"
@@ -71,7 +73,12 @@ func main() {
 
 func GetRecentOpenEvents(limit int) (*EventCollection, error){
   url := fmt.Sprintf("%s?status=open&limit=%d", baseEventsUrl, limit)
+
   responseData, err := queryApi(url)
+
+  if err != nil {
+    return nil, err
+  }
 
   var eventCollection EventCollection
 
@@ -83,7 +90,42 @@ func GetRecentOpenEvents(limit int) (*EventCollection, error){
 }
 
 func GetEventsByDate(startDate, endDate string) (*EventCollection, error) {
+  if !isValidDate(startDate) {
+    return nil, errors.New("the starting date is invalid")
+  }
 
+  if endDate != nil && !isValidDate(endDate) {
+    return nil, errors.New("the ending date is invalid")
+  }
+
+  url := fmt.Sprintf("%s?start=%s", baseEventsUrl, startDate)
+
+  if endDate != nil {
+    url = url + "&end=" + endDate
+  }
+
+  responseData, err := queryApi(url)
+
+  if err != nil {
+    return nil, err
+  }
+
+  var eventCollection EventCollection
+
+  if err := json.Unmarshal(responseData, &eventCollection); err != nil {
+    return nil, err
+  }
+
+  return &eventCollection, nil
+}
+
+func isValidDate(date string) bool {
+  t, err := time.Parse(layoutISO, date)
+  if err != nil {
+    return false
+  } else {
+    return true
+  }
 }
 
 func queryApi(url string) ([]byte, error) {
@@ -101,5 +143,5 @@ func queryApi(url string) ([]byte, error) {
     return nil, err
   }
 
-  return responseData
+  return responseData, nil
 }
