@@ -7,6 +7,8 @@ import (
   "log"
   "io/ioutil"
   "net/http"
+  "strconv"
+  "strings"
   "time"
 )
 
@@ -27,12 +29,16 @@ type Source struct {
   Url string `json:"url"`
 }
 
+type Coordinates struct {
+  Coordinates [][]float64
+}
+
 type Geometry struct {
-  MagnitudeValue string    `json:"magnitudeValue"`
-  MagnitudeUnit  string    `json:"magnitudeUnit"`
-  Date           string    `json:"date"`
-  Type           string    `json:"type"`
-  Coordinates    []float64 `json:"coordinates"`
+  MagnitudeValue float64     `json:"magnitudeValue"`
+  MagnitudeUnit  string      `json:"magnitudeUnit"`
+  Date           string      `json:"date"`
+  Type           string      `json:"type"`
+  Coords         Coordinates `json:"coordinates"`
 }
 
 type Event struct {
@@ -53,10 +59,29 @@ type EventCollection struct {
   Events      []Event `json:"events"`
 }
 
+func (c *Coordinates) UnmarshalJSON(data []byte) error {
+  dataString := strings.Replace(string(data), " ", "", -1)
+  dataString = strings.Replace(dataString, "],", "", -1)
+  dataString = strings.Replace(dataString, "]", "", -1)
+  dataString = strings.Replace(dataString, "[[", "", -1)
+  coordinates := make([][]float64, 0)
+  for _, coords := range strings.Split(dataString[1:], "[") {
+    coordArr := make([]float64, 0)
+    split := strings.Split(coords, ",")
+    coord1, _ := strconv.ParseFloat(split[0], 64)
+    coord2, _ := strconv.ParseFloat(split[1], 64)
+    coordArr = append(coordArr, coord1)
+    coordArr = append(coordArr, coord2)
+    coordinates = append(coordinates, coordArr)
+  }
+  c.Coordinates = coordinates
+  return nil
+}
+
 var client = http.Client{Timeout: 5 * time.Second}
 
 func main() {
-  eventCollection, err := GetRecentOpenEvents(10)
+  eventCollection, err := GetEventsByDate("2006-01-02", "")
 
   if err != nil {
     log.Fatal("GetRecentOpenEvents: ", err)
@@ -67,7 +92,11 @@ func main() {
     for _, source := range event.Sources {
       fmt.Printf("\tURL: %s\n", source.Url)
     }
-    fmt.Printf("Coordinates: %f, %f\n\n", event.Geometrics[0].Coordinates[0], event.Geometrics[0].Coordinates[1])
+    for _, geometry := range event.Geometrics {
+      for _, coords := range geometry.Coords.Coordinates {
+        fmt.Printf("\tCoordinates: %f, %f\n", coords[0], coords[1])
+      }
+    }
   }
 }
 
@@ -94,13 +123,13 @@ func GetEventsByDate(startDate, endDate string) (*EventCollection, error) {
     return nil, errors.New("the starting date is invalid")
   }
 
-  if endDate != nil && !isValidDate(endDate) {
+  if endDate != "" && !isValidDate(endDate) {
     return nil, errors.New("the ending date is invalid")
   }
 
   url := fmt.Sprintf("%s?start=%s", baseEventsUrl, startDate)
 
-  if endDate != nil {
+  if endDate != "" {
     url = url + "&end=" + endDate
   }
 
@@ -120,7 +149,7 @@ func GetEventsByDate(startDate, endDate string) (*EventCollection, error) {
 }
 
 func isValidDate(date string) bool {
-  t, err := time.Parse(layoutISO, date)
+  _, err := time.Parse(layoutISO, date)
   if err != nil {
     return false
   } else {
@@ -142,6 +171,8 @@ func queryApi(url string) ([]byte, error) {
   if err != nil {
     return nil, err
   }
+
+  fmt.Println(string(responseData))
 
   return responseData, nil
 }
