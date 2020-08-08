@@ -167,7 +167,7 @@ func isValidDate(date string) bool {
 func GetEventsBySourceID(sourceID string) (*EventCollection, error) {
 	query := fmt.Sprintf("?source=%s", sourceID)
 
-	eventCollection, err := queryEventsApi(url)
+	eventCollection, err := queryEventsApi(query)
 	if err != nil {
 		return nil, err
 	}
