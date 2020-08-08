@@ -1,4 +1,4 @@
-package eonet
+package goeonet
 
 import (
 	"encoding/json"
