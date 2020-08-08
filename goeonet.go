@@ -81,8 +81,7 @@ type EventCollection struct {
 var client = http.Client{Timeout: 5 * time.Second}
 
 func main() {
-	eventCollection, err := GetEventsByDate("2006-01-02", "")
-
+	eventCollection, err := GetEventsByDate("1990-01-01", "2020-01-01")
 	if err != nil {
 		log.Fatal("GetRecentOpenEvents: ", err)
 	}
@@ -92,30 +91,25 @@ func main() {
 		for _, source := range event.Sources {
 			fmt.Printf("\tURL: %s\n", source.Url)
 		}
+		fmt.Println("Coordinates:")
 		for _, geometry := range event.Geometrics {
 			for _, coords := range geometry.Coordinates.Coordinates {
-				fmt.Printf("\tCoordinates: %f, %f\n", coords[0], coords[1])
+				fmt.Printf("\t%f, %f\n", coords[0], coords[1])
 			}
 		}
+		fmt.Println()
 	}
 }
 
 func GetRecentOpenEvents(limit int) (*EventCollection, error) {
 	url := fmt.Sprintf("%s?status=open&limit=%d", baseEventsUrl, limit)
 
-	responseData, err := queryApi(url)
-
+	eventCollection, err := queryEventsApi(url)
 	if err != nil {
 		return nil, err
 	}
 
-	var eventCollection EventCollection
-
-	if err := json.Unmarshal(responseData, &eventCollection); err != nil {
-		return nil, err
-	}
-
-	return &eventCollection, nil
+	return eventCollection, nil
 }
 
 func GetEventsByDate(startDate, endDate string) (*EventCollection, error) {
@@ -133,19 +127,12 @@ func GetEventsByDate(startDate, endDate string) (*EventCollection, error) {
 		url = url + "&end=" + endDate
 	}
 
-	responseData, err := queryApi(url)
-
+	eventCollection, err := queryEventsApi(url)
 	if err != nil {
 		return nil, err
 	}
 
-	var eventCollection EventCollection
-
-	if err := json.Unmarshal(responseData, &eventCollection); err != nil {
-		return nil, err
-	}
-
-	return &eventCollection, nil
+	return eventCollection, nil
 }
 
 func isValidDate(date string) bool {
@@ -157,7 +144,18 @@ func isValidDate(date string) bool {
 	}
 }
 
-func queryApi(url string) ([]byte, error) {
+func GetEventsBySourceID(sourceID string) (*EventCollection, error) {
+	url := fmt.Sprintf("%s?source=%s", baseEventsUrl, sourceID)
+
+	eventCollection, err := queryEventsApi(url)
+	if err != nil {
+		return nil, err
+	}
+
+	return eventCollection, nil
+}
+
+func queryEventsApi(url string) (*EventCollection, error) {
 	request, _ := http.NewRequest("GET", url, nil)
 
 	response, err := client.Do(request)
@@ -172,5 +170,11 @@ func queryApi(url string) ([]byte, error) {
 		return nil, err
 	}
 
-	return responseData, nil
+	var eventCollection EventCollection
+
+	if err := json.Unmarshal(responseData, &eventCollection); err != nil {
+		return nil, err
+	}
+
+	return &eventCollection, nil
 }
