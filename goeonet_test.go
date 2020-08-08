@@ -32,6 +32,18 @@ func TestGetEventsByDateBasic(t *testing.T) {
   }
 }
 
+func TestGetEventsBySourceID(t *testing.T) {
+  eventCollection, err := GetEventsBySourceID("PDC")
+
+  if err != nil {
+    t.Error("TestGetEventsBySourceID: ", err)
+  }
+
+  if len(eventCollection.Events) < 1 {
+    t.Error("TestGetEventsBySourceID: there should be at least some events whose source is the Pacific Disaster Center (PDC)")
+  }
+}
+
 func TestGetSourcesBasic(t *testing.T) {
   sources, err := GetSources()
 
