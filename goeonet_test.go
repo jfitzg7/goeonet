@@ -27,7 +27,19 @@ func TestGetEventsByDateBasic(t *testing.T) {
     t.Error("TestGetEventsByDateBasic: ", err)
   }
 
-  if err == nil && len(eventCollection.Events) < 1 {
+  if len(eventCollection.Events) < 1 {
     t.Error("TestGetEventsByDateBasic: there should be at least some events that occured from 2010-2020")
+  }
+}
+
+func TestGetSourcesBasic(t *testing.T) {
+  sources, err := GetSources()
+
+  if err != nil {
+    t.Error("TestGetSourcesBasic: ", err)
+  }
+
+  if len(sources.Sources) < 1 {
+    t.Error("TestGetSourcesBasic: there should be at least some sources returned by the API")
   }
 }
