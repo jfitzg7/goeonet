@@ -121,7 +121,7 @@ func main() {
 	}*/
 }
 
-func GetRecentOpenEvents(limit int) (*EventCollection, error) {
+func GetRecentOpenEvents(limit uint32) (*EventCollection, error) {
 	query := fmt.Sprintf("?status=open&limit=%d", limit)
 
 	eventCollection, err := queryEventsApi(query)
