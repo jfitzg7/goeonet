@@ -17,6 +17,7 @@ const (
 	baseEventsUrl     = "https://eonet.sci.gsfc.nasa.gov/api/v3/events"
 	baseCategoriesUrl = "https://eonet.sci.gsfc.nasa.gov/api/v3/categories"
 	baseLayersUrl     = "https://eonet.sci.gsfc.nasa.gov/api/v3/layers"
+	baseSourcesUrl    = "https://eonet.sci.gsfc.nasa.gov/api/v3/sources"
 )
 
 type Category struct {
@@ -25,8 +26,17 @@ type Category struct {
 }
 
 type Source struct {
-	Id  string `json:"id"`
-	Url string `json:"url"`
+	Id     string `json:"id"`
+	Title  string `json:"title"`
+	Source string `json:"source"`
+	Link   string `json:"link"`
+}
+
+type Sources struct {
+	Title       string   `json:"title"`
+	Description string   `json:"description"`
+	Link        string   `json:"link"`
+	Sources     []Source `json:"sources"`
 }
 
 type Coordinates struct {
@@ -52,6 +62,11 @@ func (c *Coordinates) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+type EventSource struct {
+	Id     string `json:"id"`
+	Url    string `json:"url"`
+}
+
 type Geometry struct {
 	MagnitudeValue float64     `json:"magnitudeValue"`
 	MagnitudeUnit  string      `json:"magnitudeUnit"`
@@ -61,14 +76,14 @@ type Geometry struct {
 }
 
 type Event struct {
-	Id          string     `json:"id"`
-	Title       string     `json:"title"`
-	Description string     `json:"description"`
-	Link        string     `json:"link"`
-	Closed      string     `json:"closed"`
-	Categories  []Category `json:"categories"`
-	Sources     []Source   `json:"sources"`
-	Geometrics  []Geometry `json:"geometry"`
+	Id          string        `json:"id"`
+	Title       string        `json:"title"`
+	Description string        `json:"description"`
+	Link        string        `json:"link"`
+	Closed      string        `json:"closed"`
+	Categories  []Category    `json:"categories"`
+	Sources     []EventSource `json:"sources"`
+	Geometrics  []Geometry    `json:"geometry"`
 }
 
 type EventCollection struct {
@@ -81,8 +96,7 @@ type EventCollection struct {
 var client = http.Client{Timeout: 5 * time.Second}
 
 func main() {
-	eventCollection, err := GetEventsByDate("2006-01-02", "")
-
+	eventCollection, err := GetEventsBySourceID("PDC")
 	if err != nil {
 		log.Fatal("GetRecentOpenEvents: ", err)
 	}
@@ -92,30 +106,30 @@ func main() {
 		for _, source := range event.Sources {
 			fmt.Printf("\tURL: %s\n", source.Url)
 		}
+		fmt.Println("Coordinates:")
 		for _, geometry := range event.Geometrics {
 			for _, coords := range geometry.Coordinates.Coordinates {
-				fmt.Printf("\tCoordinates: %f, %f\n", coords[0], coords[1])
+				fmt.Printf("\t%f, %f\n", coords[0], coords[1])
 			}
 		}
+		fmt.Println()
 	}
+
+	/*sources, _ := GetSources()
+	for _, source := range sources.Sources {
+		fmt.Printf("ID: %s\nTitle: %s\nSource: %s\nLink: %s\n\n", source.Id, source.Title, source.Source, source.Link)
+	}*/
 }
 
 func GetRecentOpenEvents(limit int) (*EventCollection, error) {
-	url := fmt.Sprintf("%s?status=open&limit=%d", baseEventsUrl, limit)
+	query := fmt.Sprintf("?status=open&limit=%d", limit)
 
-	responseData, err := queryApi(url)
-
+	eventCollection, err := queryEventsApi(query)
 	if err != nil {
 		return nil, err
 	}
 
-	var eventCollection EventCollection
-
-	if err := json.Unmarshal(responseData, &eventCollection); err != nil {
-		return nil, err
-	}
-
-	return &eventCollection, nil
+	return eventCollection, nil
 }
 
 func GetEventsByDate(startDate, endDate string) (*EventCollection, error) {
@@ -127,25 +141,18 @@ func GetEventsByDate(startDate, endDate string) (*EventCollection, error) {
 		return nil, errors.New("the ending date is invalid")
 	}
 
-	url := fmt.Sprintf("%s?start=%s", baseEventsUrl, startDate)
+	query := fmt.Sprintf("?start=%s", startDate)
 
 	if endDate != "" {
-		url = url + "&end=" + endDate
+		query = query + "&end=" + endDate
 	}
 
-	responseData, err := queryApi(url)
-
+	eventCollection, err := queryEventsApi(query)
 	if err != nil {
 		return nil, err
 	}
 
-	var eventCollection EventCollection
-
-	if err := json.Unmarshal(responseData, &eventCollection); err != nil {
-		return nil, err
-	}
-
-	return &eventCollection, nil
+	return eventCollection, nil
 }
 
 func isValidDate(date string) bool {
@@ -157,8 +164,19 @@ func isValidDate(date string) bool {
 	}
 }
 
-func queryApi(url string) ([]byte, error) {
-	request, _ := http.NewRequest("GET", url, nil)
+func GetEventsBySourceID(sourceID string) (*EventCollection, error) {
+	query := fmt.Sprintf("?source=%s", sourceID)
+
+	eventCollection, err := queryEventsApi(query)
+	if err != nil {
+		return nil, err
+	}
+
+	return eventCollection, nil
+}
+
+func queryEventsApi(query string) (*EventCollection, error) {
+	request, _ := http.NewRequest("GET", baseEventsUrl + query, nil)
 
 	response, err := client.Do(request)
 	if err != nil {
@@ -172,5 +190,44 @@ func queryApi(url string) ([]byte, error) {
 		return nil, err
 	}
 
-	return responseData, nil
+	var eventCollection EventCollection
+
+	if err := json.Unmarshal(responseData, &eventCollection); err != nil {
+		return nil, err
+	}
+
+	return &eventCollection, nil
+}
+
+func GetSources() (*Sources, error) {
+	sources, err := querySourcesApi()
+	if err != nil {
+		return nil, err
+	}
+
+	return sources, nil
+}
+
+func querySourcesApi() (*Sources, error) {
+	request, _ := http.NewRequest("GET", baseSourcesUrl, nil)
+
+	response, err := client.Do(request)
+	if err != nil {
+		return nil, err
+	}
+
+	defer response.Body.Close()
+
+	responseData, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var sources Sources
+
+	if err := json.Unmarshal(responseData, &sources); err != nil {
+		return nil, err
+	}
+
+	return &sources, nil
 }
