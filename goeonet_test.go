@@ -1,4 +1,4 @@
-package main
+package eonet
 
 import (
   "testing"

@@ -1,4 +1,4 @@
-package main
+package eonet
 
 import (
 	"encoding/json"
@@ -94,32 +94,6 @@ type EventCollection struct {
 }
 
 var client = http.Client{Timeout: 5 * time.Second}
-
-func main() {
-	eventCollection, err := GetEventsBySourceID("PDC")
-	if err != nil {
-		log.Fatal("GetRecentOpenEvents: ", err)
-	}
-
-	for _, event := range eventCollection.Events {
-		fmt.Printf("ID: %s\nTitle: %s\nSources:\n", event.Id, event.Title)
-		for _, source := range event.Sources {
-			fmt.Printf("\tURL: %s\n", source.Url)
-		}
-		fmt.Println("Coordinates:")
-		for _, geometry := range event.Geometrics {
-			for _, coords := range geometry.Coordinates.Coordinates {
-				fmt.Printf("\t%f, %f\n", coords[0], coords[1])
-			}
-		}
-		fmt.Println()
-	}
-
-	/*sources, _ := GetSources()
-	for _, source := range sources.Sources {
-		fmt.Printf("ID: %s\nTitle: %s\nSource: %s\nLink: %s\n\n", source.Id, source.Title, source.Source, source.Link)
-	}*/
-}
 
 func GetRecentOpenEvents(limit uint32) (*EventCollection, error) {
 	query := fmt.Sprintf("?status=open&limit=%d", limit)
