@@ -122,9 +122,9 @@ func main() {
 }
 
 func GetRecentOpenEvents(limit int) (*EventCollection, error) {
-	url := fmt.Sprintf("%s?status=open&limit=%d", baseEventsUrl, limit)
+	query := fmt.Sprintf("?status=open&limit=%d", limit)
 
-	eventCollection, err := queryEventsApi(url)
+	eventCollection, err := queryEventsApi(query)
 	if err != nil {
 		return nil, err
 	}
@@ -141,13 +141,13 @@ func GetEventsByDate(startDate, endDate string) (*EventCollection, error) {
 		return nil, errors.New("the ending date is invalid")
 	}
 
-	url := fmt.Sprintf("%s?start=%s", baseEventsUrl, startDate)
+	query := fmt.Sprintf("?start=%s", startDate)
 
 	if endDate != "" {
-		url = url + "&end=" + endDate
+		query = query + "&end=" + endDate
 	}
 
-	eventCollection, err := queryEventsApi(url)
+	eventCollection, err := queryEventsApi(query)
 	if err != nil {
 		return nil, err
 	}
@@ -165,7 +165,7 @@ func isValidDate(date string) bool {
 }
 
 func GetEventsBySourceID(sourceID string) (*EventCollection, error) {
-	url := fmt.Sprintf("%s?source=%s", baseEventsUrl, sourceID)
+	query := fmt.Sprintf("?source=%s", sourceID)
 
 	eventCollection, err := queryEventsApi(url)
 	if err != nil {
@@ -175,8 +175,8 @@ func GetEventsBySourceID(sourceID string) (*EventCollection, error) {
 	return eventCollection, nil
 }
 
-func queryEventsApi(url string) (*EventCollection, error) {
-	request, _ := http.NewRequest("GET", url, nil)
+func queryEventsApi(query string) (*EventCollection, error) {
+	request, _ := http.NewRequest("GET", baseEventsUrl + query, nil)
 
 	response, err := client.Do(request)
 	if err != nil {
