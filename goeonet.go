@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"log"
+	//"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -17,6 +17,7 @@ const (
 	baseEventsUrl     = "https://eonet.sci.gsfc.nasa.gov/api/v3/events"
 	baseCategoriesUrl = "https://eonet.sci.gsfc.nasa.gov/api/v3/categories"
 	baseLayersUrl     = "https://eonet.sci.gsfc.nasa.gov/api/v3/layers"
+	baseSourcesUrl    = "https://eonet.sci.gsfc.nasa.gov/api/v3/sources"
 )
 
 type Category struct {
@@ -25,8 +26,17 @@ type Category struct {
 }
 
 type Source struct {
-	Id  string `json:"id"`
-	Url string `json:"url"`
+	Id     string `json:"id"`
+	Title  string `json:"title,omitempty"`
+	Source string `json:"source"`
+	Link   string `json:"link,omitempty"`
+}
+
+type Sources struct {
+	Title       string   `json:"title"`
+	Description string   `json:"description"`
+	Link        string   `json:"link"`
+	Sources     []Source `json:"sources"`
 }
 
 type Coordinates struct {
@@ -81,7 +91,7 @@ type EventCollection struct {
 var client = http.Client{Timeout: 5 * time.Second}
 
 func main() {
-	eventCollection, err := GetEventsByDate("1990-01-01", "2020-01-01")
+	/*eventCollection, err := GetEventsBySourceID("")
 	if err != nil {
 		log.Fatal("GetRecentOpenEvents: ", err)
 	}
@@ -98,6 +108,11 @@ func main() {
 			}
 		}
 		fmt.Println()
+	}*/
+
+	sources, _ := querySourcesApi()
+	for _, source := range sources.Sources {
+		fmt.Printf("ID: %s\nTitle: %s\nSource: %s\nLink: %s\n\n", source.Id, source.Title, source.Source, source.Link)
 	}
 }
 
@@ -177,4 +192,28 @@ func queryEventsApi(url string) (*EventCollection, error) {
 	}
 
 	return &eventCollection, nil
+}
+
+func querySourcesApi() (*Sources, error) {
+	request, _ := http.NewRequest("GET", baseSourcesUrl, nil)
+
+	response, err := client.Do(request)
+	if err != nil {
+		return nil, err
+	}
+
+	defer response.Body.Close()
+
+	responseData, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var sources Sources
+
+	if err := json.Unmarshal(responseData, &sources); err != nil {
+		return nil, err
+	}
+
+	return &sources, nil
 }
