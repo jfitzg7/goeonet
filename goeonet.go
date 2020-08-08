@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	//"log"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -27,9 +27,9 @@ type Category struct {
 
 type Source struct {
 	Id     string `json:"id"`
-	Title  string `json:"title,omitempty"`
+	Title  string `json:"title"`
 	Source string `json:"source"`
-	Link   string `json:"link,omitempty"`
+	Link   string `json:"link"`
 }
 
 type Sources struct {
@@ -62,6 +62,11 @@ func (c *Coordinates) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+type EventSource struct {
+	Id     string `json:"id"`
+	Url    string `json:"url"`
+}
+
 type Geometry struct {
 	MagnitudeValue float64     `json:"magnitudeValue"`
 	MagnitudeUnit  string      `json:"magnitudeUnit"`
@@ -71,14 +76,14 @@ type Geometry struct {
 }
 
 type Event struct {
-	Id          string     `json:"id"`
-	Title       string     `json:"title"`
-	Description string     `json:"description"`
-	Link        string     `json:"link"`
-	Closed      string     `json:"closed"`
-	Categories  []Category `json:"categories"`
-	Sources     []Source   `json:"sources"`
-	Geometrics  []Geometry `json:"geometry"`
+	Id          string        `json:"id"`
+	Title       string        `json:"title"`
+	Description string        `json:"description"`
+	Link        string        `json:"link"`
+	Closed      string        `json:"closed"`
+	Categories  []Category    `json:"categories"`
+	Sources     []EventSource `json:"sources"`
+	Geometrics  []Geometry    `json:"geometry"`
 }
 
 type EventCollection struct {
@@ -91,7 +96,7 @@ type EventCollection struct {
 var client = http.Client{Timeout: 5 * time.Second}
 
 func main() {
-	/*eventCollection, err := GetEventsBySourceID("")
+	eventCollection, err := GetEventsBySourceID("PDC")
 	if err != nil {
 		log.Fatal("GetRecentOpenEvents: ", err)
 	}
@@ -108,12 +113,12 @@ func main() {
 			}
 		}
 		fmt.Println()
-	}*/
+	}
 
-	sources, _ := querySourcesApi()
+	/*sources, _ := GetSources()
 	for _, source := range sources.Sources {
 		fmt.Printf("ID: %s\nTitle: %s\nSource: %s\nLink: %s\n\n", source.Id, source.Title, source.Source, source.Link)
-	}
+	}*/
 }
 
 func GetRecentOpenEvents(limit int) (*EventCollection, error) {
@@ -192,6 +197,15 @@ func queryEventsApi(url string) (*EventCollection, error) {
 	}
 
 	return &eventCollection, nil
+}
+
+func GetSources() (*Sources, error) {
+	sources, err := querySourcesApi()
+	if err != nil {
+		return nil, err
+	}
+
+	return sources, nil
 }
 
 func querySourcesApi() (*Sources, error) {
