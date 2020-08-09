@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -193,7 +194,9 @@ func querySourcesApi() (*Collection, error) {
 }
 
 func GetCategories() (*Collection, error) {
-	collection, err := queryCategoriesApi("")
+	url := createCategoriesApiUrl("", "", "", "", "")
+
+	collection, err := queryCategoriesApi(url.String())
 	if err != nil {
 		return nil, err
 	}
@@ -202,9 +205,9 @@ func GetCategories() (*Collection, error) {
 }
 
 func GetEventsByCategoryID(categoryID string) (*Collection, error) {
-	query := fmt.Sprintf("/%s", categoryID)
+	url := createCategoriesApiUrl(categoryID, "", "", "", "")
 
-	collection, err := queryCategoriesApi(query)
+	collection, err := queryCategoriesApi(url.String())
 	if err != nil {
 		return nil, err
 	}
@@ -212,8 +215,38 @@ func GetEventsByCategoryID(categoryID string) (*Collection, error) {
 	return collection, nil
 }
 
-func queryCategoriesApi(query string) (*Collection, error){
-	responseData, err := sendRequest(baseCategoriesUrl + query)
+func queryCategoriesApi(url string) (*Collection, error) {
+	responseData, err := sendRequest(url)
+	if err != nil {
+		return nil, err
+	}
+
+	var collection Collection
+
+	if err := json.Unmarshal(responseData, &collection); err != nil {
+		return nil, err
+	}
+
+	return &collection, nil
+}
+
+func createCategoriesApiUrl(categoryID, source, status, limit, days string) url.URL {
+	u := url.URL {
+		Scheme: "https",
+		Host: "eonet.sci.gsfc.nasa.gov",
+		Path: "/api/v3/categories/" + categoryID,
+	}
+	q := u.Query()
+	q.Set("source", source)
+	q.Set("status", status)
+	q.Set("limit", limit)
+	q.Set("days", days)
+	u.RawQuery = q.Encode()
+	return u
+}
+
+func queryLayersApi(query string) (*Collection, error) {
+	responseData, err := sendRequest(baseLayersUrl + query)
 	if err != nil {
 		return nil, err
 	}
