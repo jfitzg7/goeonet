@@ -97,10 +97,31 @@ type Collection struct {
 	Sources     []Source   `json:"sources,omitempty"`
 }
 
+type eventsQuery struct {
+	source string
+	status string
+	limit  string
+	days   string
+	start  string
+	end    string
+	magID  string
+	magMin string
+	magMax string
+	bbox   string
+}
+
+type categoriesQuery struct {
+	category string
+	source   string
+	status   string
+	limit    string
+	days     string
+}
+
 var client = http.Client{Timeout: 5 * time.Second}
 
 func GetRecentOpenEvents(limit string) (*Collection, error) {
-	url := createEventsApiUrl("", "", limit, "", "", "", "", "", "", "")
+	url := createEventsApiUrl(eventsQuery{limit: limit})
 
 	collection, err := queryEventsApi(url.String())
 	if err != nil {
@@ -119,7 +140,7 @@ func GetEventsByDate(startDate, endDate string) (*Collection, error) {
 		return nil, errors.New("the ending date is invalid")
 	}
 
-	url := createEventsApiUrl("", "", "", "", startDate, endDate, "", "", "", "")
+	url := createEventsApiUrl(eventsQuery{start: startDate, end: endDate})
 
 	collection, err := queryEventsApi(url.String())
 	if err != nil {
@@ -139,7 +160,7 @@ func isValidDate(date string) bool {
 }
 
 func GetEventsBySourceID(sourceID string) (*Collection, error) {
-	url := createEventsApiUrl(sourceID, "", "", "", "", "", "", "", "", "")
+	url := createEventsApiUrl(eventsQuery{source: sourceID})
 
 	collection, err := queryEventsApi(url.String())
 	if err != nil {
@@ -164,25 +185,25 @@ func queryEventsApi(url string) (*Collection, error) {
 	return &collection, nil
 }
 
-func createEventsApiUrl(source, status, limit, days, start, end, magID, magMin, magMax, bbox string) url.URL {
+func createEventsApiUrl(query eventsQuery) url.URL {
 	u := url.URL {
 		Scheme: "https",
 		Host: "eonet.sci.gsfc.nasa.gov",
 		Path: "/api/v3/events",
 	}
 	q := u.Query()
-	q.Set("source", source)
-	q.Set("status", status)
-	q.Set("limit", limit)
-	q.Set("days", days)
-	if start != "" {
-		q.Set("start", start)
-		q.Set("end", end)
+	q.Set("source", query.source)
+	q.Set("status", query.status)
+	q.Set("limit", query.limit)
+	q.Set("days", query.days)
+	if query.start != "" {
+		q.Set("start", query.start)
+		q.Set("end", query.end)
 	}
-	q.Set("magID", magID)
-	q.Set("magMin", magMin)
-	q.Set("magMax", magMax)
-	q.Set("bbox", bbox)
+	q.Set("magID", query.magID)
+	q.Set("magMin", query.magMin)
+	q.Set("magMax", query.magMax)
+	q.Set("bbox", query.bbox)
 	u.RawQuery = q.Encode()
 	return u
 }
@@ -212,9 +233,7 @@ func querySourcesApi() (*Collection, error) {
 }
 
 func GetCategories() (*Collection, error) {
-	url := createCategoriesApiUrl("", "", "", "", "")
-
-	collection, err := queryCategoriesApi(url.String())
+	collection, err := queryCategoriesApi(baseCategoriesUrl)
 	if err != nil {
 		return nil, err
 	}
@@ -223,7 +242,7 @@ func GetCategories() (*Collection, error) {
 }
 
 func GetEventsByCategoryID(categoryID string) (*Collection, error) {
-	url := createCategoriesApiUrl(categoryID, "", "", "", "")
+	url := createCategoriesApiUrl(categoriesQuery{category: categoryID})
 
 	collection, err := queryCategoriesApi(url.String())
 	if err != nil {
@@ -248,17 +267,17 @@ func queryCategoriesApi(url string) (*Collection, error) {
 	return &collection, nil
 }
 
-func createCategoriesApiUrl(categoryID, source, status, limit, days string) url.URL {
+func createCategoriesApiUrl(query categoriesQuery) url.URL {
 	u := url.URL {
 		Scheme: "https",
 		Host: "eonet.sci.gsfc.nasa.gov",
-		Path: "/api/v3/categories/" + categoryID,
+		Path: "/api/v3/categories/" + query.category,
 	}
 	q := u.Query()
-	q.Set("source", source)
-	q.Set("status", status)
-	q.Set("limit", limit)
-	q.Set("days", days)
+	q.Set("source", query.source)
+	q.Set("status", query.status)
+	q.Set("limit", query.limit)
+	q.Set("days", query.days)
 	u.RawQuery = q.Encode()
 	return u
 }
