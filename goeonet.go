@@ -3,9 +3,9 @@ package goeonet
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -19,12 +19,46 @@ const (
 	baseSourcesUrl    = "https://eonet.sci.gsfc.nasa.gov/api/v3/sources"
 )
 
+type Parameter struct {
+	TILEMATRIXSET string `json:"TILEMATRIXSET"`
+	FORMAT        string `json:"FORMAT"`
+}
+
+type Layer struct {
+	Name          string      `json:"name"`
+	ServiceUrl    string      `json:"serviceUrl"`
+	ServiceTypeId string      `json:"serviceTypeId"`
+	Parameters    []Parameter `json:"parameters"`
+}
+
+type Layers struct {
+	Link   string
+	Layers []Layer
+}
+
+func (l *Layers) UnmarshalJSON(data []byte) error {
+	dataString := string(data)
+	if dataString[0] == 91 { // check if the first character is '['
+		var layers []Layer
+		err := json.Unmarshal(data, &layers)
+		if err != nil {
+			return err
+		} else {
+			l.Layers = layers
+			return nil
+		}
+	} else {
+		l.Link = string(data)
+		return nil
+	}
+}
+
 type Category struct {
-	Id          string `json:"id"`
-	Title       string `json:"title"`
+	Id          string `json:"id,omitempty"`
+	Title       string `json:"title,omitempty"`
 	Link        string `json:"link,omitempty"`
 	Description string `json:"description,omitempty"`
-	Layers      string `json:"layers,omitempty"`
+	Layers      Layers `json:"layers,omitempty"`
 }
 
 type Source struct {
@@ -97,12 +131,33 @@ type Collection struct {
 	Sources     []Source   `json:"sources,omitempty"`
 }
 
+type eventsQuery struct {
+	source string
+	status string
+	limit  string
+	days   string
+	start  string
+	end    string
+	magID  string
+	magMin string
+	magMax string
+	bbox   string
+}
+
+type categoriesQuery struct {
+	category string
+	source   string
+	status   string
+	limit    string
+	days     string
+}
+
 var client = http.Client{Timeout: 5 * time.Second}
 
-func GetRecentOpenEvents(limit uint32) (*Collection, error) {
-	query := fmt.Sprintf("?status=open&limit=%d", limit)
+func GetRecentOpenEvents(limit string) (*Collection, error) {
+	url := createEventsApiUrl(eventsQuery{limit: limit})
 
-	collection, err := queryEventsApi(query)
+	collection, err := queryEventsApi(url.String())
 	if err != nil {
 		return nil, err
 	}
@@ -119,13 +174,9 @@ func GetEventsByDate(startDate, endDate string) (*Collection, error) {
 		return nil, errors.New("the ending date is invalid")
 	}
 
-	query := fmt.Sprintf("?start=%s", startDate)
+	url := createEventsApiUrl(eventsQuery{start: startDate, end: endDate})
 
-	if endDate != "" {
-		query = query + "&end=" + endDate
-	}
-
-	collection, err := queryEventsApi(query)
+	collection, err := queryEventsApi(url.String())
 	if err != nil {
 		return nil, err
 	}
@@ -143,9 +194,9 @@ func isValidDate(date string) bool {
 }
 
 func GetEventsBySourceID(sourceID string) (*Collection, error) {
-	query := fmt.Sprintf("?source=%s", sourceID)
+	url := createEventsApiUrl(eventsQuery{source: sourceID})
 
-	collection, err := queryEventsApi(query)
+	collection, err := queryEventsApi(url.String())
 	if err != nil {
 		return nil, err
 	}
@@ -153,8 +204,31 @@ func GetEventsBySourceID(sourceID string) (*Collection, error) {
 	return collection, nil
 }
 
-func queryEventsApi(query string) (*Collection, error) {
-	responseData, err := sendRequest(baseEventsUrl + query)
+func createEventsApiUrl(query eventsQuery) url.URL {
+	u := url.URL {
+		Scheme: "https",
+		Host: "eonet.sci.gsfc.nasa.gov",
+		Path: "/api/v3/events",
+	}
+	q := u.Query()
+	q.Set("source", query.source)
+	q.Set("status", query.status)
+	q.Set("limit", query.limit)
+	q.Set("days", query.days)
+	if query.start != "" {
+		q.Set("start", query.start)
+		q.Set("end", query.end)
+	}
+	q.Set("magID", query.magID)
+	q.Set("magMin", query.magMin)
+	q.Set("magMax", query.magMax)
+	q.Set("bbox", query.bbox)
+	u.RawQuery = q.Encode()
+	return u
+}
+
+func queryEventsApi(url string) (*Collection, error) {
+	responseData, err := sendRequest(url)
 	if err != nil {
 		return nil, err
 	}
@@ -193,7 +267,7 @@ func querySourcesApi() (*Collection, error) {
 }
 
 func GetCategories() (*Collection, error) {
-	collection, err := queryCategoriesApi("")
+	collection, err := queryCategoriesApi(baseCategoriesUrl)
 	if err != nil {
 		return nil, err
 	}
@@ -202,9 +276,9 @@ func GetCategories() (*Collection, error) {
 }
 
 func GetEventsByCategoryID(categoryID string) (*Collection, error) {
-	query := fmt.Sprintf("/%s", categoryID)
+	url := createCategoriesApiUrl(categoriesQuery{category: categoryID})
 
-	collection, err := queryCategoriesApi(query)
+	collection, err := queryCategoriesApi(url.String())
 	if err != nil {
 		return nil, err
 	}
@@ -212,8 +286,47 @@ func GetEventsByCategoryID(categoryID string) (*Collection, error) {
 	return collection, nil
 }
 
-func queryCategoriesApi(query string) (*Collection, error){
-	responseData, err := sendRequest(baseCategoriesUrl + query)
+func createCategoriesApiUrl(query categoriesQuery) url.URL {
+	u := url.URL {
+		Scheme: "https",
+		Host: "eonet.sci.gsfc.nasa.gov",
+		Path: "/api/v3/categories/" + query.category,
+	}
+	q := u.Query()
+	q.Set("source", query.source)
+	q.Set("status", query.status)
+	q.Set("limit", query.limit)
+	q.Set("days", query.days)
+	u.RawQuery = q.Encode()
+	return u
+}
+
+func queryCategoriesApi(url string) (*Collection, error) {
+	responseData, err := sendRequest(url)
+	if err != nil {
+		return nil, err
+	}
+
+	var collection Collection
+
+	if err := json.Unmarshal(responseData, &collection); err != nil {
+		return nil, err
+	}
+
+	return &collection, nil
+}
+
+func GetLayers() (*Collection, error) {
+	collection, err := queryLayersApi(baseLayersUrl)
+	if err != nil {
+		return nil, err
+	}
+
+	return collection, nil
+}
+
+func queryLayersApi(url string) (*Collection, error) {
+	responseData, err := sendRequest(url)
 	if err != nil {
 		return nil, err
 	}
