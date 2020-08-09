@@ -20,8 +20,11 @@ const (
 )
 
 type Category struct {
-	Id    string `json:"id"`
-	Title string `json:"title"`
+	Id          string `json:"id"`
+	Title       string `json:"title"`
+	Link        string `json:"link,omitempty"`
+	Description string `json:"description,omitempty"`
+	Layers      string `json:"layers,omitempty"`
 }
 
 type Source struct {
@@ -85,27 +88,29 @@ type Event struct {
 	Geometrics  []Geometry    `json:"geometry"`
 }
 
-type EventCollection struct {
-	Title       string  `json:"title"`
-	Description string  `json:"description"`
-	Link        string  `json:"link"`
-	Events      []Event `json:"events"`
+type Collection struct {
+	Title       string     `json:"title"`
+	Description string     `json:"description"`
+	Link        string     `json:"link"`
+	Events      []Event    `json:"events,omitempty"`
+	Categories  []Category `json:"categories,omitempty"`
+	Sources     []Source   `json:"sources,omitempty"`
 }
 
 var client = http.Client{Timeout: 5 * time.Second}
 
-func GetRecentOpenEvents(limit uint32) (*EventCollection, error) {
+func GetRecentOpenEvents(limit uint32) (*Collection, error) {
 	query := fmt.Sprintf("?status=open&limit=%d", limit)
 
-	eventCollection, err := queryEventsApi(query)
+	collection, err := queryEventsApi(query)
 	if err != nil {
 		return nil, err
 	}
 
-	return eventCollection, nil
+	return collection, nil
 }
 
-func GetEventsByDate(startDate, endDate string) (*EventCollection, error) {
+func GetEventsByDate(startDate, endDate string) (*Collection, error) {
 	if !isValidDate(startDate) {
 		return nil, errors.New("the starting date is invalid")
 	}
@@ -120,12 +125,12 @@ func GetEventsByDate(startDate, endDate string) (*EventCollection, error) {
 		query = query + "&end=" + endDate
 	}
 
-	eventCollection, err := queryEventsApi(query)
+	collection, err := queryEventsApi(query)
 	if err != nil {
 		return nil, err
 	}
 
-	return eventCollection, nil
+	return collection, nil
 }
 
 func isValidDate(date string) bool {
@@ -137,19 +142,93 @@ func isValidDate(date string) bool {
 	}
 }
 
-func GetEventsBySourceID(sourceID string) (*EventCollection, error) {
+func GetEventsBySourceID(sourceID string) (*Collection, error) {
 	query := fmt.Sprintf("?source=%s", sourceID)
 
-	eventCollection, err := queryEventsApi(query)
+	collection, err := queryEventsApi(query)
 	if err != nil {
 		return nil, err
 	}
 
-	return eventCollection, nil
+	return collection, nil
 }
 
-func queryEventsApi(query string) (*EventCollection, error) {
-	request, _ := http.NewRequest("GET", baseEventsUrl + query, nil)
+func queryEventsApi(query string) (*Collection, error) {
+	responseData, err := sendRequest(baseEventsUrl + query)
+	if err != nil {
+		return nil, err
+	}
+
+	var collection Collection
+
+	if err := json.Unmarshal(responseData, &collection); err != nil {
+		return nil, err
+	}
+
+	return &collection, nil
+}
+
+func GetSources() (*Collection, error) {
+	collection, err := querySourcesApi()
+	if err != nil {
+		return nil, err
+	}
+
+	return collection, nil
+}
+
+func querySourcesApi() (*Collection, error) {
+	responseData, err := sendRequest(baseSourcesUrl)
+	if err != nil {
+		return nil, err
+	}
+
+	var collection Collection
+
+	if err := json.Unmarshal(responseData, &collection); err != nil {
+		return nil, err
+	}
+
+	return &collection, nil
+}
+
+func GetCategories() (*Collection, error) {
+	collection, err := queryCategoriesApi("")
+	if err != nil {
+		return nil, err
+	}
+
+	return collection, nil
+}
+
+func GetEventsByCategoryID(categoryID string) (*Collection, error) {
+	query := fmt.Sprintf("/%s", categoryID)
+
+	collection, err := queryCategoriesApi(query)
+	if err != nil {
+		return nil, err
+	}
+
+	return collection, nil
+}
+
+func queryCategoriesApi(query string) (*Collection, error){
+	responseData, err := sendRequest(baseCategoriesUrl + query)
+	if err != nil {
+		return nil, err
+	}
+
+	var collection Collection
+
+	if err := json.Unmarshal(responseData, &collection); err != nil {
+		return nil, err
+	}
+
+	return &collection, nil
+}
+
+func sendRequest(url string) ([]byte, error) {
+	request, _ := http.NewRequest("GET", url, nil)
 
 	response, err := client.Do(request)
 	if err != nil {
@@ -163,44 +242,5 @@ func queryEventsApi(query string) (*EventCollection, error) {
 		return nil, err
 	}
 
-	var eventCollection EventCollection
-
-	if err := json.Unmarshal(responseData, &eventCollection); err != nil {
-		return nil, err
-	}
-
-	return &eventCollection, nil
-}
-
-func GetSources() (*Sources, error) {
-	sources, err := querySourcesApi()
-	if err != nil {
-		return nil, err
-	}
-
-	return sources, nil
-}
-
-func querySourcesApi() (*Sources, error) {
-	request, _ := http.NewRequest("GET", baseSourcesUrl, nil)
-
-	response, err := client.Do(request)
-	if err != nil {
-		return nil, err
-	}
-
-	defer response.Body.Close()
-
-	responseData, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	var sources Sources
-
-	if err := json.Unmarshal(responseData, &sources); err != nil {
-		return nil, err
-	}
-
-	return &sources, nil
+	return responseData, nil
 }
