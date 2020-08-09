@@ -19,12 +19,46 @@ const (
 	baseSourcesUrl    = "https://eonet.sci.gsfc.nasa.gov/api/v3/sources"
 )
 
+type Parameter struct {
+	TILEMATRIXSET string `json:"TILEMATRIXSET"`
+	FORMAT        string `json:"FORMAT"`
+}
+
+type Layer struct {
+	Name          string      `json:"name"`
+	ServiceUrl    string      `json:"serviceUrl"`
+	ServiceTypeId string      `json:"serviceTypeId"`
+	Parameters    []Parameter `json:"parameters"`
+}
+
+type Layers struct {
+	Link   string
+	Layers []Layer
+}
+
+func (l *Layers) UnmarshalJSON(data []byte) error {
+	dataString := string(data)
+	if dataString[0] == 91 { // check if the first character is '['
+		var layers []Layer
+		err := json.Unmarshal(data, &layers)
+		if err != nil {
+			return err
+		} else {
+			l.Layers = layers
+			return nil
+		}
+	} else {
+		l.Link = string(data)
+		return nil
+	}
+}
+
 type Category struct {
-	Id          string `json:"id"`
-	Title       string `json:"title"`
+	Id          string `json:"id,omitempty"`
+	Title       string `json:"title,omitempty"`
 	Link        string `json:"link,omitempty"`
 	Description string `json:"description,omitempty"`
-	Layers      string `json:"layers,omitempty"`
+	Layers      Layers `json:"layers,omitempty"`
 }
 
 type Source struct {
@@ -170,21 +204,6 @@ func GetEventsBySourceID(sourceID string) (*Collection, error) {
 	return collection, nil
 }
 
-func queryEventsApi(url string) (*Collection, error) {
-	responseData, err := sendRequest(url)
-	if err != nil {
-		return nil, err
-	}
-
-	var collection Collection
-
-	if err := json.Unmarshal(responseData, &collection); err != nil {
-		return nil, err
-	}
-
-	return &collection, nil
-}
-
 func createEventsApiUrl(query eventsQuery) url.URL {
 	u := url.URL {
 		Scheme: "https",
@@ -206,6 +225,21 @@ func createEventsApiUrl(query eventsQuery) url.URL {
 	q.Set("bbox", query.bbox)
 	u.RawQuery = q.Encode()
 	return u
+}
+
+func queryEventsApi(url string) (*Collection, error) {
+	responseData, err := sendRequest(url)
+	if err != nil {
+		return nil, err
+	}
+
+	var collection Collection
+
+	if err := json.Unmarshal(responseData, &collection); err != nil {
+		return nil, err
+	}
+
+	return &collection, nil
 }
 
 func GetSources() (*Collection, error) {
@@ -252,21 +286,6 @@ func GetEventsByCategoryID(categoryID string) (*Collection, error) {
 	return collection, nil
 }
 
-func queryCategoriesApi(url string) (*Collection, error) {
-	responseData, err := sendRequest(url)
-	if err != nil {
-		return nil, err
-	}
-
-	var collection Collection
-
-	if err := json.Unmarshal(responseData, &collection); err != nil {
-		return nil, err
-	}
-
-	return &collection, nil
-}
-
 func createCategoriesApiUrl(query categoriesQuery) url.URL {
 	u := url.URL {
 		Scheme: "https",
@@ -282,8 +301,32 @@ func createCategoriesApiUrl(query categoriesQuery) url.URL {
 	return u
 }
 
-func queryLayersApi(query string) (*Collection, error) {
-	responseData, err := sendRequest(baseLayersUrl + query)
+func queryCategoriesApi(url string) (*Collection, error) {
+	responseData, err := sendRequest(url)
+	if err != nil {
+		return nil, err
+	}
+
+	var collection Collection
+
+	if err := json.Unmarshal(responseData, &collection); err != nil {
+		return nil, err
+	}
+
+	return &collection, nil
+}
+
+func GetLayers() (*Collection, error) {
+	collection, err := queryLayersApi(baseLayersUrl)
+	if err != nil {
+		return nil, err
+	}
+
+	return collection, nil
+}
+
+func queryLayersApi(url string) (*Collection, error) {
+	responseData, err := sendRequest(url)
 	if err != nil {
 		return nil, err
 	}

@@ -95,3 +95,19 @@ func TestGetEventsByCategoryIDLandslides(t *testing.T) {
     t.Error("TestGetEventsByCategoryIDLandslides: the link returned from the api doesn't match")
   }
 }
+
+func TestGetLayersBasic(t *testing.T) {
+  collection, err := GetLayers()
+
+  if err != nil {
+    t.Error("TestGetLayersBasic: ", err)
+  }
+
+  if collection.Title != "EONET Web Service Layers" {
+    t.Error("TestGetLayersBasic: the title returned from the api doesn't match")
+  }
+
+  if collection.Link != baseLayersUrl {
+    t.Error("TestGetLayersBasic: the link returned from the api doesn't match")
+  }
+}
