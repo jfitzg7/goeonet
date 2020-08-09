@@ -1,7 +1,7 @@
 # EONET Client
 A client written in Golang for getting information on current natural events provided by https://eonet.sci.gsfc.nasa.gov/
 ### Installing
-- run: `go get github.com/jfitzzg/goeonet` in the console (must have Golang and Git installed)
+- run: `go get github.com/jfitzzg/goeonet` in the console. Must have Golang and Git installed
 ### Examples
 ```
 // get the 10 most recent open events
