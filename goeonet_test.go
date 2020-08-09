@@ -79,3 +79,19 @@ func TestGetCategoriesBasic(t *testing.T) {
     t.Error("TestGetCategoriesBasic: the link returned from the api doesn't match")
   }
 }
+
+func TestGetEventsByCategoryIDLandslides(t *testing.T) {
+  collection, err := GetEventsByCategoryID("landslides")
+
+  if err != nil {
+    t.Error("TestGetEventsByCategoryIDLandslides: ", err)
+  }
+
+  if collection.Title != "EONET Events: Landslides" {
+    t.Error("TestGetEventsByCategoryIDLandslides: the title returned from the api doesn't match")
+  }
+
+  if collection.Link != baseCategoriesUrl + "/landslides" {
+    t.Error("TestGetEventsByCategoryIDLandslides: the link returned from the api doesn't match")
+  }
+}

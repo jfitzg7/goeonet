@@ -201,10 +201,15 @@ func GetCategories() (*Collection, error) {
 	return collection, nil
 }
 
-func GetCategoryByID(categoryID string) (*Collection, error) {
-	//query := fmt.Sprintf("?")
-	//collection, err := queryCategoriesApi(categoryID)
-	return nil, nil
+func GetEventsByCategoryID(categoryID string) (*Collection, error) {
+	query := fmt.Sprintf("/%s", categoryID)
+
+	collection, err := queryCategoriesApi(query)
+	if err != nil {
+		return nil, err
+	}
+
+	return collection, nil
 }
 
 func queryCategoriesApi(query string) (*Collection, error){
