@@ -197,6 +197,15 @@ func querySourcesApi() (*Sources, error) {
 	return &sources, nil
 }
 
+func GetCategories() (*EventCategories, error) {
+	eventCategories, err := queryCategoriesApi("")
+	if err != nil {
+		return nil, err
+	}
+
+	return eventCategories, nil
+}
+
 func queryCategoriesApi(query string) (*EventCategories, error){
 	responseData, err := sendRequest(baseCategoriesUrl + query)
 	if err != nil {

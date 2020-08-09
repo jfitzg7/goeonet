@@ -56,18 +56,18 @@ func TestGetSourcesBasic(t *testing.T) {
   }
 }
 
-func TestQueryCategoriesApiBasic(t *testing.T) {
-  eventCategories, err := queryCategoriesApi("")
+func TestGetCategoriesBasic(t *testing.T) {
+  eventCategories, err := GetCategories()
 
   if err != nil {
-    t.Error("TestQueryCategoriesApiBasic: ", err)
+    t.Error("TestGetCategoriesBasic: ", err)
   }
 
   if eventCategories.Title != "EONET Event Categories" {
-    t.Error("TestQueryCategoriesApiBasic: the title returned from the api does not match")
+    t.Error("TestGetCategoriesBasic: the title returned from the api does not match")
   }
 
   if eventCategories.Link != baseCategoriesUrl {
-    t.Error("TestQueryCategoriesApiBasic: the link returned from the api does not match")
+    t.Error("TestGetCategoriesBasic: the link returned from the api does not match")
   }
 }
