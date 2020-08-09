@@ -20,8 +20,18 @@ const (
 )
 
 type Category struct {
-	Id    string `json:"id"`
-	Title string `json:"title"`
+	Id          string `json:"id"`
+	Title       string `json:"title"`
+	Link        string `json:"link,omitempty"`
+	Description string `json:"description,omitempty"`
+	Layers      string `json:"layers,omitempty"`
+}
+
+type EventCategories struct {
+	Title       string     `json:"title"`
+	Description string     `json:"description"`
+	Link        string     `json:"link"`
+	Categories  []Category `json:"categories"`
 }
 
 type Source struct {
@@ -203,4 +213,28 @@ func querySourcesApi() (*Sources, error) {
 	}
 
 	return &sources, nil
+}
+
+func queryCategoriesApi(query string) (*EventCategories, error){
+	request, _ := http.NewRequest("GET", baseCategoriesUrl + query, nil)
+
+	response, err := client.Do(request)
+	if err != nil {
+		return nil, err
+	}
+
+	defer response.Body.Close()
+
+	responseData, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var eventCategories EventCategories
+
+	if err := json.Unmarshal(responseData, &eventCategories); err != nil {
+		return nil, err
+	}
+
+	return &eventCategories, nil
 }
