@@ -5,7 +5,7 @@ import (
 )
 
 func TestGetRecentOpenEventsBasic(t *testing.T) {
-  collection, err := GetRecentOpenEvents(1)
+  collection, err := GetRecentOpenEvents("1")
 
   if err != nil {
     t.Error("TestGetRecentOpenEventsBasic: ", err)

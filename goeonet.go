@@ -3,7 +3,6 @@ package goeonet
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -100,10 +99,10 @@ type Collection struct {
 
 var client = http.Client{Timeout: 5 * time.Second}
 
-func GetRecentOpenEvents(limit uint32) (*Collection, error) {
-	query := fmt.Sprintf("?status=open&limit=%d", limit)
+func GetRecentOpenEvents(limit string) (*Collection, error) {
+	url := createEventsApiUrl("", "", limit, "", "", "", "", "", "", "")
 
-	collection, err := queryEventsApi(query)
+	collection, err := queryEventsApi(url.String())
 	if err != nil {
 		return nil, err
 	}
@@ -120,13 +119,9 @@ func GetEventsByDate(startDate, endDate string) (*Collection, error) {
 		return nil, errors.New("the ending date is invalid")
 	}
 
-	query := fmt.Sprintf("?start=%s", startDate)
+	url := createEventsApiUrl("", "", "", "", startDate, endDate, "", "", "", "")
 
-	if endDate != "" {
-		query = query + "&end=" + endDate
-	}
-
-	collection, err := queryEventsApi(query)
+	collection, err := queryEventsApi(url.String())
 	if err != nil {
 		return nil, err
 	}
@@ -144,9 +139,9 @@ func isValidDate(date string) bool {
 }
 
 func GetEventsBySourceID(sourceID string) (*Collection, error) {
-	query := fmt.Sprintf("?source=%s", sourceID)
+	url := createEventsApiUrl(sourceID, "", "", "", "", "", "", "", "", "")
 
-	collection, err := queryEventsApi(query)
+	collection, err := queryEventsApi(url.String())
 	if err != nil {
 		return nil, err
 	}
@@ -154,8 +149,8 @@ func GetEventsBySourceID(sourceID string) (*Collection, error) {
 	return collection, nil
 }
 
-func queryEventsApi(query string) (*Collection, error) {
-	responseData, err := sendRequest(baseEventsUrl + query)
+func queryEventsApi(url string) (*Collection, error) {
+	responseData, err := sendRequest(url)
 	if err != nil {
 		return nil, err
 	}
@@ -167,6 +162,29 @@ func queryEventsApi(query string) (*Collection, error) {
 	}
 
 	return &collection, nil
+}
+
+func createEventsApiUrl(source, status, limit, days, start, end, magID, magMin, magMax, bbox string) url.URL {
+	u := url.URL {
+		Scheme: "https",
+		Host: "eonet.sci.gsfc.nasa.gov",
+		Path: "/api/v3/events",
+	}
+	q := u.Query()
+	q.Set("source", source)
+	q.Set("status", status)
+	q.Set("limit", limit)
+	q.Set("days", days)
+	if start != "" {
+		q.Set("start", start)
+		q.Set("end", end)
+	}
+	q.Set("magID", magID)
+	q.Set("magMin", magMin)
+	q.Set("magMax", magMax)
+	q.Set("bbox", bbox)
+	u.RawQuery = q.Encode()
+	return u
 }
 
 func GetSources() (*Collection, error) {
