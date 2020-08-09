@@ -159,16 +159,7 @@ func GetEventsBySourceID(sourceID string) (*EventCollection, error) {
 }
 
 func queryEventsApi(query string) (*EventCollection, error) {
-	request, _ := http.NewRequest("GET", baseEventsUrl + query, nil)
-
-	response, err := client.Do(request)
-	if err != nil {
-		return nil, err
-	}
-
-	defer response.Body.Close()
-
-	responseData, err := ioutil.ReadAll(response.Body)
+	responseData, err := sendRequest(baseEventsUrl + query)
 	if err != nil {
 		return nil, err
 	}
@@ -192,16 +183,7 @@ func GetSources() (*Sources, error) {
 }
 
 func querySourcesApi() (*Sources, error) {
-	request, _ := http.NewRequest("GET", baseSourcesUrl, nil)
-
-	response, err := client.Do(request)
-	if err != nil {
-		return nil, err
-	}
-
-	defer response.Body.Close()
-
-	responseData, err := ioutil.ReadAll(response.Body)
+	responseData, err := sendRequest(baseSourcesUrl)
 	if err != nil {
 		return nil, err
 	}
@@ -216,7 +198,22 @@ func querySourcesApi() (*Sources, error) {
 }
 
 func queryCategoriesApi(query string) (*EventCategories, error){
-	request, _ := http.NewRequest("GET", baseCategoriesUrl + query, nil)
+	responseData, err := sendRequest(baseCategoriesUrl + query)
+	if err != nil {
+		return nil, err
+	}
+
+	var eventCategories EventCategories
+
+	if err := json.Unmarshal(responseData, &eventCategories); err != nil {
+		return nil, err
+	}
+
+	return &eventCategories, nil
+}
+
+func sendRequest(url string) ([]byte, error) {
+	request, _ := http.NewRequest("GET", url, nil)
 
 	response, err := client.Do(request)
 	if err != nil {
@@ -230,11 +227,5 @@ func queryCategoriesApi(query string) (*EventCategories, error){
 		return nil, err
 	}
 
-	var eventCategories EventCategories
-
-	if err := json.Unmarshal(responseData, &eventCategories); err != nil {
-		return nil, err
-	}
-
-	return &eventCategories, nil
+	return responseData, nil
 }
