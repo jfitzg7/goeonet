@@ -27,13 +27,6 @@ type Category struct {
 	Layers      string `json:"layers,omitempty"`
 }
 
-type EventCategories struct {
-	Title       string     `json:"title"`
-	Description string     `json:"description"`
-	Link        string     `json:"link"`
-	Categories  []Category `json:"categories"`
-}
-
 type Source struct {
 	Id     string `json:"id"`
 	Title  string `json:"title"`
@@ -95,27 +88,29 @@ type Event struct {
 	Geometrics  []Geometry    `json:"geometry"`
 }
 
-type EventCollection struct {
-	Title       string  `json:"title"`
-	Description string  `json:"description"`
-	Link        string  `json:"link"`
-	Events      []Event `json:"events"`
+type Collection struct {
+	Title       string     `json:"title"`
+	Description string     `json:"description"`
+	Link        string     `json:"link"`
+	Events      []Event    `json:"events,omitempty"`
+	Categories  []Category `json:"categories,omitempty"`
+	Sources     []Source   `json:"sources,omitempty"`
 }
 
 var client = http.Client{Timeout: 5 * time.Second}
 
-func GetRecentOpenEvents(limit uint32) (*EventCollection, error) {
+func GetRecentOpenEvents(limit uint32) (*Collection, error) {
 	query := fmt.Sprintf("?status=open&limit=%d", limit)
 
-	eventCollection, err := queryEventsApi(query)
+	collection, err := queryEventsApi(query)
 	if err != nil {
 		return nil, err
 	}
 
-	return eventCollection, nil
+	return collection, nil
 }
 
-func GetEventsByDate(startDate, endDate string) (*EventCollection, error) {
+func GetEventsByDate(startDate, endDate string) (*Collection, error) {
 	if !isValidDate(startDate) {
 		return nil, errors.New("the starting date is invalid")
 	}
@@ -130,12 +125,12 @@ func GetEventsByDate(startDate, endDate string) (*EventCollection, error) {
 		query = query + "&end=" + endDate
 	}
 
-	eventCollection, err := queryEventsApi(query)
+	collection, err := queryEventsApi(query)
 	if err != nil {
 		return nil, err
 	}
 
-	return eventCollection, nil
+	return collection, nil
 }
 
 func isValidDate(date string) bool {
@@ -147,78 +142,84 @@ func isValidDate(date string) bool {
 	}
 }
 
-func GetEventsBySourceID(sourceID string) (*EventCollection, error) {
+func GetEventsBySourceID(sourceID string) (*Collection, error) {
 	query := fmt.Sprintf("?source=%s", sourceID)
 
-	eventCollection, err := queryEventsApi(query)
+	collection, err := queryEventsApi(query)
 	if err != nil {
 		return nil, err
 	}
 
-	return eventCollection, nil
+	return collection, nil
 }
 
-func queryEventsApi(query string) (*EventCollection, error) {
+func queryEventsApi(query string) (*Collection, error) {
 	responseData, err := sendRequest(baseEventsUrl + query)
 	if err != nil {
 		return nil, err
 	}
 
-	var eventCollection EventCollection
+	var collection Collection
 
-	if err := json.Unmarshal(responseData, &eventCollection); err != nil {
+	if err := json.Unmarshal(responseData, &collection); err != nil {
 		return nil, err
 	}
 
-	return &eventCollection, nil
+	return &collection, nil
 }
 
-func GetSources() (*Sources, error) {
-	sources, err := querySourcesApi()
+func GetSources() (*Collection, error) {
+	collection, err := querySourcesApi()
 	if err != nil {
 		return nil, err
 	}
 
-	return sources, nil
+	return collection, nil
 }
 
-func querySourcesApi() (*Sources, error) {
+func querySourcesApi() (*Collection, error) {
 	responseData, err := sendRequest(baseSourcesUrl)
 	if err != nil {
 		return nil, err
 	}
 
-	var sources Sources
+	var collection Collection
 
-	if err := json.Unmarshal(responseData, &sources); err != nil {
+	if err := json.Unmarshal(responseData, &collection); err != nil {
 		return nil, err
 	}
 
-	return &sources, nil
+	return &collection, nil
 }
 
-func GetCategories() (*EventCategories, error) {
-	eventCategories, err := queryCategoriesApi("")
+func GetCategories() (*Collection, error) {
+	collection, err := queryCategoriesApi("")
 	if err != nil {
 		return nil, err
 	}
 
-	return eventCategories, nil
+	return collection, nil
 }
 
-func queryCategoriesApi(query string) (*EventCategories, error){
+func GetCategoryByID(categoryID string) (*Collection, error) {
+	//query := fmt.Sprintf("?")
+	//collection, err := queryCategoriesApi(categoryID)
+	return nil, nil
+}
+
+func queryCategoriesApi(query string) (*Collection, error){
 	responseData, err := sendRequest(baseCategoriesUrl + query)
 	if err != nil {
 		return nil, err
 	}
 
-	var eventCategories EventCategories
+	var collection Collection
 
-	if err := json.Unmarshal(responseData, &eventCategories); err != nil {
+	if err := json.Unmarshal(responseData, &collection); err != nil {
 		return nil, err
 	}
 
-	return &eventCategories, nil
+	return &collection, nil
 }
 
 func sendRequest(url string) ([]byte, error) {
