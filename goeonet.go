@@ -37,8 +37,7 @@ type Layers struct {
 }
 
 func (l *Layers) UnmarshalJSON(data []byte) error {
-	dataString := string(data)
-	if dataString[0] == 91 { // check if the first character is '['
+	if string(data)[0] == 91 { // check if the first character is '['
 		var layers []Layer
 		err := json.Unmarshal(data, &layers)
 		if err != nil {
@@ -53,8 +52,18 @@ func (l *Layers) UnmarshalJSON(data []byte) error {
 	}
 }
 
+type CategoryID struct {
+	Id string
+}
+
+// Convert everything to string since the category id can be either a number or string
+func (c *CategoryID) UnmarshalJSON(data []byte) error {
+	c.Id = string(data)
+	return nil
+}
+
 type Category struct {
-	Id          string `json:"id,omitempty"`
+	Id          CategoryID `json:"id,omitempty"`
 	Title       string `json:"title,omitempty"`
 	Link        string `json:"link,omitempty"`
 	Description string `json:"description,omitempty"`
@@ -323,6 +332,26 @@ func GetLayers() (*Collection, error) {
 	}
 
 	return collection, nil
+}
+
+func GetLayersByCategoryID(categoryID string) (*Collection, error) {
+	url := createLayersApiUrl(categoryID)
+
+	collection, err := queryLayersApi(url.String())
+	if err != nil {
+		return nil, err
+	}
+
+	return collection, nil
+}
+
+func createLayersApiUrl(categoryID string) url.URL {
+	u := url.URL {
+		Scheme: "https",
+		Host: "eonet.sci.gsfc.nasa.gov",
+		Path: "/api/v3/layers/" + categoryID,
+	}
+	return u
 }
 
 func queryLayersApi(url string) (*Collection, error) {
