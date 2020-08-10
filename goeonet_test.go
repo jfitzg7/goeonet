@@ -8,7 +8,7 @@ func TestGetRecentOpenEventsBasic(t *testing.T) {
   collection, err := GetRecentOpenEvents("1")
 
   if err != nil {
-    t.Error("TestGetRecentOpenEventsBasic: ", err)
+    t.Error(err)
   }
 
   if collection.Title != "EONET Events" && collection.Link != baseEventsUrl {
@@ -24,7 +24,7 @@ func TestGetEventsByDateBasic(t *testing.T) {
   collection, err := GetEventsByDate("2010-01-01", "2020-01-01")
 
   if err != nil {
-    t.Error("TestGetEventsByDateBasic: ", err)
+    t.Error(err)
   }
 
   if len(collection.Events) < 1 {
@@ -36,7 +36,7 @@ func TestGetEventsBySourceID(t *testing.T) {
   collection, err := GetEventsBySourceID("PDC")
 
   if err != nil {
-    t.Error("TestGetEventsBySourceID: ", err)
+    t.Error(err)
   }
 
   if len(collection.Events) < 1 {
@@ -48,7 +48,7 @@ func TestGetSourcesBasic(t *testing.T) {
   collection, err := GetSources()
 
   if err != nil {
-    t.Error("TestGetSourcesBasic: ", err)
+    t.Error(err)
   }
 
   if collection.Title != "EONET Event Sources" {
@@ -68,7 +68,7 @@ func TestGetCategoriesBasic(t *testing.T) {
   collection, err := GetCategories()
 
   if err != nil {
-    t.Error("TestGetCategoriesBasic: ", err)
+    t.Error(err)
   }
 
   if collection.Title != "EONET Event Categories" {
@@ -84,7 +84,7 @@ func TestGetEventsByCategoryIDLandslides(t *testing.T) {
   collection, err := GetEventsByCategoryID("landslides")
 
   if err != nil {
-    t.Error("TestGetEventsByCategoryIDLandslides: ", err)
+    t.Error(err)
   }
 
   if collection.Title != "EONET Events: Landslides" {
@@ -100,7 +100,7 @@ func TestGetLayersBasic(t *testing.T) {
   collection, err := GetLayers()
 
   if err != nil {
-    t.Error("TestGetLayersBasic: ", err)
+    t.Error(err)
   }
 
   if collection.Title != "EONET Web Service Layers" {
@@ -109,5 +109,21 @@ func TestGetLayersBasic(t *testing.T) {
 
   if collection.Link != baseLayersUrl {
     t.Error("TestGetLayersBasic: the link returned from the api doesn't match")
+  }
+}
+
+func TestGetLayersByCategoryIDWildfires(t *testing.T) {
+  collection, err := GetLayersByCategoryID("wildfires")
+
+  if err != nil {
+    t.Error(err)
+  }
+
+  if collection.Categories[0].Title != "Wildfires" {
+    t.Error("the title for the wildfires category doesn't match")
+  }
+
+  if collection.Categories[0].Id.Id != "8" {
+    t.Error("the id for the wildfires category doesn't match")
   }
 }
