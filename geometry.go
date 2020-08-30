@@ -8,8 +8,9 @@ import (
 
 /*
   Inspired by paulmach's go.geojson package. The EONET API
-  uses foreign members in their geometry objects, so a custom
-  implementation must be used to unmarshal the json properly.
+  uses foreign members in their geometry objects, so a different
+  implementation must be used for unmarshaling the JSON. Otherwise I
+  would just use go.geojson.
 */
 
 type GeometryType string
