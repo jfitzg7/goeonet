@@ -38,8 +38,16 @@ type eventsQuery struct {
 	bbox   string
 }
 
-func GetRecentOpenEvents(limit string) (*Collection, error) {
-	url := createEventsApiUrl(eventsQuery{limit: limit})
+func GetRecentEvents(limit string, open bool) (*Collection, error) {
+  var status string
+
+  if open {
+    status = "open"
+  } else {
+    status = "closed"
+  }
+
+	url := createEventsApiUrl(eventsQuery{limit: limit, status: status})
 
 	collection, err := queryEventsApi(url.String())
 	if err != nil {
