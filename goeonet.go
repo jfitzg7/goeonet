@@ -6,8 +6,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"strconv"
-	"strings"
 	"time"
 )
 
@@ -84,40 +82,9 @@ type Sources struct {
 	Sources     []Source `json:"sources"`
 }
 
-type Coordinates struct {
-	Coordinates [][]float64
-}
-
-func (c *Coordinates) UnmarshalJSON(data []byte) error {
-	dataString := strings.Replace(string(data), " ", "", -1)
-	dataString = strings.Replace(dataString, "],", "", -1)
-	dataString = strings.Replace(dataString, "]", "", -1)
-	dataString = strings.Replace(dataString, "[[", "", -1)
-	coordinates := make([][]float64, 0)
-	for _, coords := range strings.Split(dataString[1:], "[") {
-		coordArr := make([]float64, 0)
-		split := strings.Split(coords, ",")
-		coord1, _ := strconv.ParseFloat(split[0], 64)
-		coord2, _ := strconv.ParseFloat(split[1], 64)
-		coordArr = append(coordArr, coord1)
-		coordArr = append(coordArr, coord2)
-		coordinates = append(coordinates, coordArr)
-	}
-	c.Coordinates = coordinates
-	return nil
-}
-
 type EventSource struct {
 	Id     string `json:"id"`
 	Url    string `json:"url"`
-}
-
-type Geometry struct {
-	MagnitudeValue float64     `json:"magnitudeValue"`
-	MagnitudeUnit  string      `json:"magnitudeUnit"`
-	Date           string      `json:"date"`
-	Type           string      `json:"type"`
-	Coordinates    Coordinates `json:"coordinates"`
 }
 
 type Event struct {
