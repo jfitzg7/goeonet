@@ -3,6 +3,7 @@ package goeonet
 import (
   "encoding/json"
   "errors"
+  "fmt"
 )
 
 /*
@@ -91,5 +92,60 @@ func decodeGeometry(g *Geometry, object map[string]interface{}) error {
     g.Polygon, err = decodePolygon(object["coordinates"])
   }
 
-  return nil
+  return err
+}
+
+func decodePoint(data interface{}) ([]float64, error) {
+  coords, ok := data.([]interface{})
+  if !ok {
+    return nil, fmt.Errorf("not a valid point, got %v", data)
+  }
+
+  result := make([]float64, 0, len(coords))
+  for _, coord := range coords {
+    if f, ok := coord.(float64); ok {
+      result = append(result, f)
+    } else {
+      return nil, fmt.Errorf("not a valid coordinate, got %v", coord)
+    }
+  }
+
+  return result, nil
+}
+
+func decodePointSet(data interface{}) ([][]float64, error) {
+  points, ok := data.([]interface{})
+  if !ok {
+    return nil, fmt.Errorf("not a valid set of points, got %v", data)
+  }
+
+  result := make([][]float64, 0, len(points))
+	for _, point := range points {
+		if p, err := decodePoint(point); err == nil {
+			result = append(result, p)
+		} else {
+			return nil, err
+		}
+	}
+
+	return result, nil
+}
+
+func decodePolygon(data interface{}) ([][][]float64, error) {
+  sets, ok := data.([]interface{})
+	if !ok {
+		return nil, fmt.Errorf("not a valid path, got %v", data)
+	}
+
+	result := make([][][]float64, 0, len(sets))
+
+	for _, set := range sets {
+		if s, err := decodePointSet(set); err == nil {
+			result = append(result, s)
+		} else {
+			return nil, err
+		}
+	}
+
+	return result, nil
 }
