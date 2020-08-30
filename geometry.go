@@ -21,10 +21,10 @@ const (
 )
 
 type Geometry struct {
-	MagnitudeValue float64     `json:"magnitudeValue"`
-	MagnitudeUnit  string      `json:"magnitudeUnit"`
-	Date           string      `json:"date"`
-	Type           string      `json:"type"`
+	MagnitudeValue float64      `json:"magnitudeValue"`
+	MagnitudeUnit  string       `json:"magnitudeUnit"`
+	Date           string       `json:"date"`
+	Type           GeometryType `json:"type"`
 	Point    			 []float64
 	Polygon        [][][]float64
 }
