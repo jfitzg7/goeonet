@@ -29,7 +29,7 @@ type Geometry struct {
 	Polygon        [][][]float64
 }
 
-func (*g Geometry) UnmarshalJSON(data []byte) error {
+func (g *Geometry) UnmarshalJSON(data []byte) error {
   var object map[string]interface{}
   err := json.Unmarshal(data, &object)
   if err != nil {
