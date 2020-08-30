@@ -30,6 +30,14 @@ func TestGetEventsByDateBasic(t *testing.T) {
   }
 }
 
+func TestGetEventsByDateBadStartDate(t *testing.T) {
+  _, err := GetEventsByDate("01-01-2010", "")
+
+  if err == nil {
+    t.Error("An invalid format for the start date was used successfully")
+  }
+}
+
 func TestGetEventsBySourceID(t *testing.T) {
   collection, err := GetEventsBySourceID("PDC")
 
