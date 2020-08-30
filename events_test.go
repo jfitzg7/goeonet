@@ -38,6 +38,14 @@ func TestGetEventsByDateBadStartDate(t *testing.T) {
   }
 }
 
+func TestGetEventsByDateBadEndDate(t *testing.T) {
+  _, err := GetEventsByDate("2010-01-01", "01-01-2020")
+
+  if err == nil {
+    t.Error("An invalid format for the end date was used successfully")
+  }
+}
+
 func TestGetEventsBySourceID(t *testing.T) {
   collection, err := GetEventsBySourceID("PDC")
 
