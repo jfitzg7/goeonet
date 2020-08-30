@@ -89,15 +89,6 @@ type EventSource struct {
 	Url    string `json:"url"`
 }
 
-type Geometry struct {
-	MagnitudeValue float64     `json:"magnitudeValue"`
-	MagnitudeUnit  string      `json:"magnitudeUnit"`
-	Date           string      `json:"date"`
-	Type           string      `json:"type"`
-	Point    			 []float64
-	Polygon        [][][]float64
-}
-
 type Event struct {
 	Id          string        `json:"id"`
 	Title       string        `json:"title"`
