@@ -7,6 +7,8 @@ import (
   "time"
 )
 
+const layoutISO = "2006-01-02"
+
 type EventSource struct {
 	Id     string `json:"id"`
 	Url    string `json:"url"`

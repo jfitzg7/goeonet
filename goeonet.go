@@ -7,7 +7,6 @@ import (
 )
 
 const (
-	layoutISO         = "2006-01-02"
 	baseEventsUrl     = "https://eonet.sci.gsfc.nasa.gov/api/v3/events"
 	baseCategoriesUrl = "https://eonet.sci.gsfc.nasa.gov/api/v3/categories"
 	baseLayersUrl     = "https://eonet.sci.gsfc.nasa.gov/api/v3/layers"
