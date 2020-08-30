@@ -88,6 +88,8 @@ func decodeGeometry(g *Geometry, object map[string]interface{}) error {
     return errors.New("type property is not a string")
   }
 
+  var err error
+
   switch g.Type {
   case GeometryPoint:
     g.Point, err = decodePoint(object["coordinates"])
