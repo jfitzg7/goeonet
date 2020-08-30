@@ -45,8 +45,8 @@ func decodeGeometry(g *Geometry, object map[string]interface{}) error {
     return errors.New("magnitudeValue property is not defined")
   }
 
-  if s, ok := mv.(string); ok {
-    g.MagnitudeValue = s
+  if mv == nil {
+    g.MagnitudeValue = 0
   } else if f, ok := mv.(float64); ok {
     g.MagnitudeValue = f
   } else {
@@ -58,7 +58,9 @@ func decodeGeometry(g *Geometry, object map[string]interface{}) error {
     return errors.New("magnitudeUnit property is not defined")
   }
 
-  if s, ok := mv.(string); ok {
+  if mu == nil {
+    g.MagnitudeUnit = ""
+  } else if s, ok := mu.(string); ok {
     g.MagnitudeUnit = s
   } else {
     return errors.New("magnitudeUnit property is not a string")
