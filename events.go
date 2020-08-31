@@ -2,10 +2,8 @@ package goeonet
 
 import (
   "encoding/json"
-  "errors"
   "fmt"
   "net/url"
-  "time"
 )
 
 const layoutISO = "2006-01-02"
