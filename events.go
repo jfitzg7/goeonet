@@ -48,7 +48,7 @@ func GetEvents(query EventsQuery) (*Collection, error) {
   return collection, nil
 }
 
-func createEventsApiUrl(query eventsQuery) url.URL {
+func createEventsApiUrl(query EventsQuery) url.URL {
 	u := url.URL {
 		Scheme: "https",
 		Host: "eonet.sci.gsfc.nasa.gov",
