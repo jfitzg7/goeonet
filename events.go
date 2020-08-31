@@ -39,65 +39,15 @@ type EventsQuery struct {
 	bbox   string
 }
 
-func GetRecentOpenEvents(limit uint) (*Collection, error) {
-  url := createEventsApiUrl(eventsQuery{limit: fmt.Sprint(limit), status: "open"})
+func GetEvents(query EventsQuery) (*Collection, error) {
+  url := createEventsApiUrl(query)
 
-	collection, err := queryEventsApi(url.String())
-	if err != nil {
-		return nil, err
-	}
+  collection, err := queryEventsApi(url.String())
+  if err != nil {
+    return nil, err
+  }
 
-	return collection, nil
-}
-
-func GetRecentClosedEvents(limit uint) (*Collection, error) {
-	url := createEventsApiUrl(eventsQuery{limit: fmt.Sprint(limit), status: "closed"})
-
-	collection, err := queryEventsApi(url.String())
-	if err != nil {
-		return nil, err
-	}
-
-	return collection, nil
-}
-
-func GetEventsByDate(startDate, endDate string) (*Collection, error) {
-	if !isValidDate(startDate) {
-		return nil, errors.New("the starting date is invalid")
-	}
-
-	if endDate != "" && !isValidDate(endDate) {
-		return nil, errors.New("the ending date is invalid")
-	}
-
-	url := createEventsApiUrl(eventsQuery{start: startDate, end: endDate})
-
-	collection, err := queryEventsApi(url.String())
-	if err != nil {
-		return nil, err
-	}
-
-	return collection, nil
-}
-
-func isValidDate(date string) bool {
-	_, err := time.Parse(layoutISO, date)
-	if err != nil {
-		return false
-	} else {
-		return true
-	}
-}
-
-func GetEventsBySourceID(sourceID string) (*Collection, error) {
-	url := createEventsApiUrl(eventsQuery{source: sourceID})
-
-	collection, err := queryEventsApi(url.String())
-	if err != nil {
-		return nil, err
-	}
-
-	return collection, nil
+  return collection, nil
 }
 
 func createEventsApiUrl(query eventsQuery) url.URL {
