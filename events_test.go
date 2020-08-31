@@ -2,8 +2,8 @@ package goeonet
 
 import "testing"
 
-func TestGetRecentOpenEventsBasic(t *testing.T) {
-  collection, err := GetRecentOpenEvents("1")
+func TestGetRecentOpenEvents(t *testing.T) {
+  collection, err := GetRecentOpenEvents(1)
 
   if err != nil {
     t.Error(err)
@@ -13,8 +13,26 @@ func TestGetRecentOpenEventsBasic(t *testing.T) {
     t.Error("An error has likely occurred while querying the events API")
   }
 
+  // There might be 0 recent open events, so checking for != 1 won't work
   if len(collection.Events) > 1 {
-    t.Error("Number of events returned exceeded the limit")
+    t.Error("Number of open events returned exceeded the limit")
+  }
+}
+
+func TestGetRecentClosedEvents(t *testing.T) {
+  collection, err := GetRecentClosedEvents(1)
+
+  if err != nil {
+    t.Error(err)
+  }
+
+  if collection.Title != "EONET Events" && collection.Link != baseEventsUrl {
+    t.Error("An error has likely occurred while querying the events API")
+  }
+
+  // There should always be at least 1 closed event returned
+  if len(collection.Events) != 1 {
+    t.Error("Number of closed events returned does not match the specified limit")
   }
 }
 
@@ -27,6 +45,22 @@ func TestGetEventsByDateBasic(t *testing.T) {
 
   if len(collection.Events) < 1 {
     t.Error("There should be at least some events that occured from 2010-2020")
+  }
+}
+
+func TestGetEventsByDateBadStartDate(t *testing.T) {
+  _, err := GetEventsByDate("01-01-2010", "")
+
+  if err == nil {
+    t.Error("An invalid format for the start date was used successfully")
+  }
+}
+
+func TestGetEventsByDateBadEndDate(t *testing.T) {
+  _, err := GetEventsByDate("2010-01-01", "01-01-2020")
+
+  if err == nil {
+    t.Error("An invalid format for the end date was used successfully")
   }
 }
 

@@ -3,9 +3,12 @@ package goeonet
 import (
   "encoding/json"
   "errors"
+  "fmt"
   "net/url"
   "time"
 )
+
+const layoutISO = "2006-01-02"
 
 type EventSource struct {
 	Id     string `json:"id"`
@@ -36,8 +39,19 @@ type eventsQuery struct {
 	bbox   string
 }
 
-func GetRecentOpenEvents(limit string) (*Collection, error) {
-	url := createEventsApiUrl(eventsQuery{limit: limit})
+func GetRecentOpenEvents(limit uint) (*Collection, error) {
+  url := createEventsApiUrl(eventsQuery{limit: fmt.Sprint(limit), status: "open"})
+
+	collection, err := queryEventsApi(url.String())
+	if err != nil {
+		return nil, err
+	}
+
+	return collection, nil
+}
+
+func GetRecentClosedEvents(limit uint) (*Collection, error) {
+	url := createEventsApiUrl(eventsQuery{limit: fmt.Sprint(limit), status: "closed"})
 
 	collection, err := queryEventsApi(url.String())
 	if err != nil {
