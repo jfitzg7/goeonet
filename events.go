@@ -57,8 +57,12 @@ func createEventsApiUrl(query EventsQuery) url.URL {
 	q := u.Query()
 	q.Set("source", query.source)
 	q.Set("status", query.status)
-	q.Set("limit", query.limit)
-	q.Set("days", query.days)
+  if query.limit > 0 {
+	   q.Set("limit", fmt.Sprint(query.limit))
+  }
+  if query.days > 0 {
+	   q.Set("days", fmt.Sprint(query.days))
+  }
 	if query.start != "" {
 		q.Set("start", query.start)
 		q.Set("end", query.end)
