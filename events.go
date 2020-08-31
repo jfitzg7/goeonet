@@ -26,7 +26,7 @@ type Event struct {
 	Geometrics  []Geometry    `json:"geometry"`
 }
 
-type eventsQuery struct {
+type EventsQuery struct {
 	source string
 	status string
 	limit  string
