@@ -3,7 +3,7 @@ package goeonet
 import "testing"
 
 func TestGetRecentOpenEvents(t *testing.T) {
-  collection, err := GetRecentOpenEvents(1)
+  collection, err := GetEvents(EventsQuery{status: "open", limit: 1})
 
   if err != nil {
     t.Error(err)
@@ -20,7 +20,7 @@ func TestGetRecentOpenEvents(t *testing.T) {
 }
 
 func TestGetRecentClosedEvents(t *testing.T) {
-  collection, err := GetRecentClosedEvents(1)
+  collection, err := GetEvents(EventsQuery{status: "closed", limit: 1})
 
   if err != nil {
     t.Error(err)
@@ -37,7 +37,7 @@ func TestGetRecentClosedEvents(t *testing.T) {
 }
 
 func TestGetEventsByDateBasic(t *testing.T) {
-  collection, err := GetEventsByDate("2010-01-01", "2020-01-01")
+  collection, err := GetEvents(EventsQuery{start: "2010-01-01", end: "2020-01-01"})
 
   if err != nil {
     t.Error(err)
@@ -49,7 +49,7 @@ func TestGetEventsByDateBasic(t *testing.T) {
 }
 
 func TestGetEventsByDateBadStartDate(t *testing.T) {
-  _, err := GetEventsByDate("01-01-2010", "")
+  _, err := GetEvents(EventsQuery{start: "01-01-2010"})
 
   if err == nil {
     t.Error("An invalid format for the start date was used successfully")
@@ -57,7 +57,7 @@ func TestGetEventsByDateBadStartDate(t *testing.T) {
 }
 
 func TestGetEventsByDateBadEndDate(t *testing.T) {
-  _, err := GetEventsByDate("2010-01-01", "01-01-2020")
+  _, err := GetEvents(EventsQuery{start: "2010-01-01", end: "01-01-2020"})
 
   if err == nil {
     t.Error("An invalid format for the end date was used successfully")
@@ -65,7 +65,7 @@ func TestGetEventsByDateBadEndDate(t *testing.T) {
 }
 
 func TestGetEventsBySourceID(t *testing.T) {
-  collection, err := GetEventsBySourceID("PDC")
+  collection, err := GetEvents(EventsQuery{source: "PDC"})
 
   if err != nil {
     t.Error(err)
