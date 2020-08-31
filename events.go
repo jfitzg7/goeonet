@@ -29,8 +29,8 @@ type Event struct {
 type EventsQuery struct {
 	source string
 	status string
-	limit  string
-	days   string
+	limit  uint
+	days   uint
 	start  string
 	end    string
 	magID  string
