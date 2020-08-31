@@ -48,22 +48,6 @@ func TestGetEventsByDateBasic(t *testing.T) {
   }
 }
 
-func TestGetEventsByDateBadStartDate(t *testing.T) {
-  collection, err := GetEvents(EventsQuery{start: "01-01-2010"})
-
-  if err == nil {
-    t.Error("An invalid format for the start date was used successfully")
-  }
-}
-
-func TestGetEventsByDateBadEndDate(t *testing.T) {
-  collection, err := GetEvents(EventsQuery{start: "2010-01-01", end: "01-01-2020"})
-
-  if err == nil {
-    t.Error("An invalid format for the end date was used successfully")
-  }
-}
-
 func TestGetEventsBySourceID(t *testing.T) {
   collection, err := GetEvents(EventsQuery{source: "PDC"})
 
