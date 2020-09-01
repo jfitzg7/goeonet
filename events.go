@@ -37,7 +37,7 @@ type EventsQueryParameters struct {
 func GetEvents(query EventsQueryParameters) (*Collection, error) {
   url := createEventsApiUrl(query)
 
-  collection, err := queryEventsApi(url.String())
+  collection, err := queryEonetApi(url.String())
   if err != nil {
     return nil, err
   }
@@ -70,19 +70,4 @@ func createEventsApiUrl(query EventsQueryParameters) url.URL {
 	q.Set("bbox", query.bbox)
 	u.RawQuery = q.Encode()
 	return u
-}
-
-func queryEventsApi(url string) (*Collection, error) {
-	responseData, err := sendRequest(url)
-	if err != nil {
-		return nil, err
-	}
-
-	var collection Collection
-
-	if err := json.Unmarshal(responseData, &collection); err != nil {
-		return nil, err
-	}
-
-	return &collection, nil
 }

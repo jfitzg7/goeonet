@@ -1,6 +1,7 @@
 package goeonet
 
 import (
+	"encoding/json"
 	"io/ioutil"
 	"net/http"
 	"time"
@@ -23,6 +24,21 @@ type Collection struct {
 }
 
 var client = http.Client{Timeout: 5 * time.Second}
+
+func queryEonetApi(url string) (*Collection, error) {
+	responseData, err := sendRequest(url)
+	if err != nil {
+		return nil, err
+	}
+
+	var collection Collection
+
+	if err := json.Unmarshal(responseData, &collection); err != nil {
+		return nil, err
+	}
+
+	return &collection, nil
+}
 
 func sendRequest(url string) ([]byte, error) {
 	request, _ := http.NewRequest("GET", url, nil)
