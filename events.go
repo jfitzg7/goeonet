@@ -5,6 +5,8 @@ import (
   "net/url"
 )
 
+const baseEventsUrl = "https://eonet.sci.gsfc.nasa.gov/api/v3/events"
+
 type EventSource struct {
 	Id     string `json:"id"`
 	Url    string `json:"url"`
