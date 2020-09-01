@@ -24,16 +24,16 @@ type Event struct {
 }
 
 type EventsQueryParameters struct {
-	source string
-	status string
-	limit  uint
-	days   uint
-	start  string
-	end    string
-	magID  string
-	magMin string
-	magMax string
-	bbox   string
+	Source string
+	Status string
+	Limit  uint
+	Days   uint
+	Start  string
+	End    string
+	MagID  string
+	MagMin string
+	MagMax string
+	Bbox   string
 }
 
 func GetEvents(query EventsQueryParameters) (*Collection, error) {
@@ -49,27 +49,41 @@ func GetEvents(query EventsQueryParameters) (*Collection, error) {
 
 func createEventsApiUrl(query EventsQueryParameters) url.URL {
 	u := url.URL {
-		Scheme: "https",
-		Host: "eonet.sci.gsfc.nasa.gov",
-		Path: "/api/v3/events",
+	   Scheme: "https",
+     Host: "eonet.sci.gsfc.nasa.gov",
+     Path: "/api/v3/events",
 	}
 	q := u.Query()
-	q.Set("source", query.source)
-	q.Set("status", query.status)
-  if query.limit > 0 {
-	   q.Set("limit", fmt.Sprint(query.limit))
+  if query.Source != "" {
+	   q.Set("source", query.Source)
   }
-  if query.days > 0 {
-	   q.Set("days", fmt.Sprint(query.days))
+  if query.Status != "" {
+	   q.Set("status", query.Status)
   }
-	if query.start != "" {
-		q.Set("start", query.start)
-		q.Set("end", query.end)
+  if query.Limit > 0 {
+	   q.Set("limit", fmt.Sprint(query.Limit))
+  }
+  if query.Days > 0 {
+	   q.Set("days", fmt.Sprint(query.Days))
+  }
+	if query.Start != "" {
+		q.Set("start", query.Start)
+    if query.End != "" {
+		    q.Set("end", query.End)
+    }
 	}
-	q.Set("magID", query.magID)
-	q.Set("magMin", query.magMin)
-	q.Set("magMax", query.magMax)
-	q.Set("bbox", query.bbox)
+  if query.MagID != "" {
+    q.Set("magID", query.MagID)
+  }
+  if query.MagMin != "" {
+	  q.Set("magMin", query.MagMin)
+  }
+  if query.MagMax != "" {
+	  q.Set("magMax", query.MagMax)
+  }
+  if query.Bbox != "" {
+	  q.Set("bbox", query.Bbox)
+  }
 	u.RawQuery = q.Encode()
 	return u
 }
