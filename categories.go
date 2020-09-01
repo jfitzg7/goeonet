@@ -1,7 +1,6 @@
 package goeonet
 
 import (
-  "encoding/json"
   "net/url"
 )
 
@@ -32,7 +31,7 @@ type categoriesQuery struct {
 }
 
 func GetCategories() (*Collection, error) {
-	collection, err := queryCategoriesApi(baseCategoriesUrl)
+	collection, err := queryEonetApi(baseCategoriesUrl)
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +42,7 @@ func GetCategories() (*Collection, error) {
 func GetEventsByCategoryID(categoryID string) (*Collection, error) {
 	url := createCategoriesApiUrl(categoriesQuery{category: categoryID})
 
-	collection, err := queryCategoriesApi(url.String())
+	collection, err := queryEonetApi(url.String())
 	if err != nil {
 		return nil, err
 	}
@@ -64,19 +63,4 @@ func createCategoriesApiUrl(query categoriesQuery) url.URL {
 	q.Set("days", query.days)
 	u.RawQuery = q.Encode()
 	return u
-}
-
-func queryCategoriesApi(url string) (*Collection, error) {
-	responseData, err := sendRequest(url)
-	if err != nil {
-		return nil, err
-	}
-
-	var collection Collection
-
-	if err := json.Unmarshal(responseData, &collection); err != nil {
-		return nil, err
-	}
-
-	return &collection, nil
 }

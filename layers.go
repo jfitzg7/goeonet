@@ -39,7 +39,7 @@ func (l *Layers) UnmarshalJSON(data []byte) error {
 }
 
 func GetLayers() (*Collection, error) {
-	collection, err := queryLayersApi(baseLayersUrl)
+	collection, err := queryEonetApi(baseLayersUrl)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +50,7 @@ func GetLayers() (*Collection, error) {
 func GetLayersByCategoryID(categoryID string) (*Collection, error) {
 	url := createLayersApiUrl(categoryID)
 
-	collection, err := queryLayersApi(url.String())
+	collection, err := queryEonetApi(url.String())
 	if err != nil {
 		return nil, err
 	}
@@ -65,19 +65,4 @@ func createLayersApiUrl(categoryID string) url.URL {
 		Path: "/api/v3/layers/" + categoryID,
 	}
 	return u
-}
-
-func queryLayersApi(url string) (*Collection, error) {
-	responseData, err := sendRequest(url)
-	if err != nil {
-		return nil, err
-	}
-
-	var collection Collection
-
-	if err := json.Unmarshal(responseData, &collection); err != nil {
-		return nil, err
-	}
-
-	return &collection, nil
 }

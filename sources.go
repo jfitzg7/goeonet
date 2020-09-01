@@ -1,9 +1,5 @@
 package goeonet
 
-import (
-  "encoding/json"
-)
-
 type Source struct {
 	Id     string `json:"id"`
 	Title  string `json:"title"`
@@ -19,25 +15,10 @@ type Sources struct {
 }
 
 func GetSources() (*Collection, error) {
-	collection, err := querySourcesApi()
+	collection, err := queryEonetApi(baseSourcesUrl)
 	if err != nil {
 		return nil, err
 	}
 
 	return collection, nil
-}
-
-func querySourcesApi() (*Collection, error) {
-	responseData, err := sendRequest(baseSourcesUrl)
-	if err != nil {
-		return nil, err
-	}
-
-	var collection Collection
-
-	if err := json.Unmarshal(responseData, &collection); err != nil {
-		return nil, err
-	}
-
-	return &collection, nil
 }
