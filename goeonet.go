@@ -20,10 +20,10 @@ type HTTPClient interface {
 	Do(req *http.Request) (*http.Response, error)
 }
 
-var Client HTTPClient
+var client HTTPClient
 
 func init() {
-	Client = &http.Client{Timeout: 5 * time.Second}
+	client = &http.Client{Timeout: 5 * time.Second}
 }
 
 func queryEonetApi(url string) (*Collection, error) {
@@ -44,7 +44,7 @@ func queryEonetApi(url string) (*Collection, error) {
 func sendRequest(url string) ([]byte, error) {
 	request, _ := http.NewRequest("GET", url, nil)
 
-	response, err := Client.Do(request)
+	response, err := client.Do(request)
 	if err != nil {
 		return nil, err
 	}
