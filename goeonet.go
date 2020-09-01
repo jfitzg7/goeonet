@@ -16,7 +16,15 @@ type Collection struct {
 	Sources     []Source   `json:"sources,omitempty"`
 }
 
-var client = http.Client{Timeout: 5 * time.Second}
+type HTTPClient interface {
+	Do(req *http.Request) (*http.Response, error)
+}
+
+var Client HTTPClient
+
+func init() {
+	Client = &http.Client{Timeout: 5 * time.Second}
+}
 
 func queryEonetApi(url string) (*Collection, error) {
 	responseData, err := sendRequest(url)
@@ -36,7 +44,7 @@ func queryEonetApi(url string) (*Collection, error) {
 func sendRequest(url string) ([]byte, error) {
 	request, _ := http.NewRequest("GET", url, nil)
 
-	response, err := client.Do(request)
+	response, err := Client.Do(request)
 	if err != nil {
 		return nil, err
 	}
