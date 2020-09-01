@@ -1,5 +1,7 @@
 package goeonet
 
+const	baseSourcesUrl = "https://eonet.sci.gsfc.nasa.gov/api/v3/sources"
+
 type Source struct {
 	Id     string `json:"id"`
 	Title  string `json:"title"`

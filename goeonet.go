@@ -7,13 +7,6 @@ import (
 	"time"
 )
 
-const (
-	baseEventsUrl     = "https://eonet.sci.gsfc.nasa.gov/api/v3/events"
-	baseCategoriesUrl = "https://eonet.sci.gsfc.nasa.gov/api/v3/categories"
-	baseLayersUrl     = "https://eonet.sci.gsfc.nasa.gov/api/v3/layers"
-	baseSourcesUrl    = "https://eonet.sci.gsfc.nasa.gov/api/v3/sources"
-)
-
 type Collection struct {
 	Title       string     `json:"title"`
 	Description string     `json:"description"`

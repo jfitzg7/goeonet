@@ -4,6 +4,8 @@ import (
   "net/url"
 )
 
+const baseCategoriesUrl = "https://eonet.sci.gsfc.nasa.gov/api/v3/categories"
+
 type CategoryID struct {
 	Id string
 }

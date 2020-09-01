@@ -5,6 +5,8 @@ import (
   "net/url"
 )
 
+const baseLayersUrl = "https://eonet.sci.gsfc.nasa.gov/api/v3/layers"
+
 type Parameter struct {
 	TILEMATRIXSET string `json:"TILEMATRIXSET"`
 	FORMAT        string `json:"FORMAT"`
