@@ -11,19 +11,55 @@ import (
   "github.com/jfitzg7/goeonet/mocks"
 )
 
-func TestGetEventsWithLimit(t *testing.T) {
+const mockEventsJsonExample = `{
+  "title": "EONET Events",
+  "description": "Natural events from EONET.",
+  "link": "https://eonet.sci.gsfc.nasa.gov/api/v3/events",
+  "events": [
+    {
+      "id": "EONET_4954",
+      "title": "Deep Creek Fire",
+      "description": null,
+      "link": "https://eonet.sci.gsfc.nasa.gov/api/v3/events/EONET_4954",
+      "closed": null,
+      "categories": [
+        {
+          "id": "wildfires",
+          "title": "Wildfires"
+        }
+      ],
+      "sources": [
+        {
+          "id": "InciWeb",
+          "url": "http://inciweb.nwcg.gov/incident/7112/"
+        }
+      ],
+      "geometry": [
+        {
+          "magnitudeValue": null,
+          "magnitudeUnit": null,
+          "date": "2020-08-30T08:43:00Z",
+          "type": "Point",
+          "coordinates": [ -99.150000000000006, 32.686999999999998 ]
+        }
+      ]
+    }
+  ]
+}`
+
+func TestGetEventsWithSource(t *testing.T) {
   mockCtrl := gomock.NewController(t)
 
   mockHTTPClient := mocks.NewMockHTTPClient(mockCtrl)
   client = mockHTTPClient
 
-  request, _ := http.NewRequest("GET", "https://eonet.sci.gsfc.nasa.gov/api/v3/events?limit=1", nil)
+  request, _ := http.NewRequest("GET", "https://eonet.sci.gsfc.nasa.gov/api/v3/events?limit=1&source=InciWeb&status=open", nil)
 
-  response := &http.Response{StatusCode: 200, Body: ioutil.NopCloser(bytes.NewReader([]byte("")))}
+  response := &http.Response{Body: ioutil.NopCloser(bytes.NewReader([]byte(mockEventsJsonExample)))}
 
   mockHTTPClient.EXPECT().Do(gomock.Eq(request)).Return(response, nil).Times(1)
 
-  GetEvents(EventsQueryParameters{Limit: 1})
+  GetEvents(EventsQueryParameters{Source: "InciWeb", Status: "open", Limit: 1})
 
   client = &http.Client{Timeout: 5 * time.Second}
 }
