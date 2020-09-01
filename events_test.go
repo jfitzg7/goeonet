@@ -3,7 +3,7 @@ package goeonet
 import "testing"
 
 func TestGetRecentOpenEvents(t *testing.T) {
-  collection, err := GetEvents(EventsQueryParameters{status: "open", limit: 1})
+  collection, err := GetEvents(EventsQueryParameters{Status: "open", Limit: 1})
 
   if err != nil {
     t.Error(err)
@@ -20,7 +20,7 @@ func TestGetRecentOpenEvents(t *testing.T) {
 }
 
 func TestGetRecentClosedEvents(t *testing.T) {
-  collection, err := GetEvents(EventsQueryParameters{status: "closed", limit: 1})
+  collection, err := GetEvents(EventsQueryParameters{Status: "closed", Limit: 1})
 
   if err != nil {
     t.Error(err)
@@ -37,7 +37,7 @@ func TestGetRecentClosedEvents(t *testing.T) {
 }
 
 func TestGetEventsByDateBasic(t *testing.T) {
-  collection, err := GetEvents(EventsQueryParameters{start: "2010-01-01", end: "2020-01-01"})
+  collection, err := GetEvents(EventsQueryParameters{Start: "2010-01-01", End: "2020-01-01"})
 
   if err != nil {
     t.Error(err)
@@ -49,7 +49,7 @@ func TestGetEventsByDateBasic(t *testing.T) {
 }
 
 func TestGetEventsBySourceID(t *testing.T) {
-  collection, err := GetEvents(EventsQueryParameters{source: "PDC"})
+  collection, err := GetEvents(EventsQueryParameters{Source: "PDC"})
 
   if err != nil {
     t.Error(err)
