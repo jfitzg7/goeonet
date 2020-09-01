@@ -1,6 +1,32 @@
 package goeonet
 
-import "testing"
+import (
+  "bytes"
+  "io/ioutil"
+  "testing"
+  "net/http"
+  "time"
+
+  "github.com/golang/mock/gomock"
+  "github.com/jfitzg7/goeonet/mocks"
+)
+
+func TestGetEvents(t *testing.T) {
+  mockCtrl := gomock.NewController(t)
+
+  mockHTTPClient := mocks.NewMockHTTPClient(mockCtrl)
+  client = mockHTTPClient
+
+  request, _ := http.NewRequest("GET", "https://eonet.sci.gsfc.nasa.gov/api/v3/events?limit=1", nil)
+
+  response := &http.Response{StatusCode: 200, Body: ioutil.NopCloser(bytes.NewReader([]byte("")))}
+
+  mockHTTPClient.EXPECT().Do(gomock.Eq(request)).Return(response, nil).Times(1)
+
+  GetEvents(EventsQueryParameters{Limit: 1})
+
+  client = &http.Client{Timeout: 5 * time.Second}
+}
 
 func TestGetRecentOpenEvents(t *testing.T) {
   collection, err := GetEvents(EventsQueryParameters{Status: "open", Limit: 1})
