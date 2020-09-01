@@ -1,7 +1,6 @@
 package goeonet
 
 import (
-  "encoding/json"
   "fmt"
   "net/url"
 )
@@ -22,7 +21,7 @@ type Event struct {
 	Geometrics  []Geometry    `json:"geometry"`
 }
 
-type EventsQuery struct {
+type EventsQueryParameters struct {
 	source string
 	status string
 	limit  uint
@@ -35,7 +34,7 @@ type EventsQuery struct {
 	bbox   string
 }
 
-func GetEvents(query EventsQuery) (*Collection, error) {
+func GetEvents(query EventsQueryParameters) (*Collection, error) {
   url := createEventsApiUrl(query)
 
   collection, err := queryEventsApi(url.String())
@@ -46,7 +45,7 @@ func GetEvents(query EventsQuery) (*Collection, error) {
   return collection, nil
 }
 
-func createEventsApiUrl(query EventsQuery) url.URL {
+func createEventsApiUrl(query EventsQueryParameters) url.URL {
 	u := url.URL {
 		Scheme: "https",
 		Host: "eonet.sci.gsfc.nasa.gov",
