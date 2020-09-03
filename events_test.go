@@ -1,77 +1,112 @@
 package goeonet
 
-import "testing"
+import (
+  "bytes"
+  "io/ioutil"
+  "testing"
+  "net/http"
 
-func TestGetRecentOpenEvents(t *testing.T) {
-  collection, err := GetRecentOpenEvents(1)
+  "github.com/golang/mock/gomock"
+  "github.com/jfitzg7/goeonet/mocks"
+  "github.com/onsi/gomega"
+)
+
+const mockEventsJsonData = `{
+  "title": "EONET Events",
+  "description": "Natural events from EONET.",
+  "link": "https://eonet.sci.gsfc.nasa.gov/api/v3/events",
+  "events": [
+    {
+      "id": "EONET_4954",
+      "title": "Deep Creek Fire",
+      "description": null,
+      "link": "https://eonet.sci.gsfc.nasa.gov/api/v3/events/EONET_4954",
+      "closed": null,
+      "categories": [
+        {
+          "id": "wildfires",
+          "title": "Wildfires"
+        }
+      ],
+      "sources": [
+        {
+          "id": "InciWeb",
+          "url": "http://inciweb.nwcg.gov/incident/7112/"
+        }
+      ],
+      "geometry": [
+        {
+          "magnitudeValue": null,
+          "magnitudeUnit": null,
+          "date": "2020-08-30T08:43:00Z",
+          "type": "Point",
+          "coordinates": [ -99.150000000000006, 32.686999999999998 ]
+        }
+      ]
+    }
+  ]
+}`
+
+func TestGetEventsWithSource(t *testing.T) {
+  mockCtrl := gomock.NewController(t)
+
+  mockHTTPClient := mocks.NewMockHTTPClient(mockCtrl)
+  client = mockHTTPClient
+
+  url := "https://eonet.sci.gsfc.nasa.gov/api/v3/events?end=2020-08-30&limit=1&source=InciWeb&start=2020-08-30&status=open"
+
+  request, _ := http.NewRequest("GET", url, nil)
+
+  response := &http.Response{Body: ioutil.NopCloser(bytes.NewReader([]byte(mockEventsJsonData)))}
+
+  mockHTTPClient.EXPECT().Do(gomock.Eq(request)).Return(response, nil).Times(1)
+
+  query := EventsQueryParameters{
+    Source: "InciWeb",
+    Status: "open",
+    Limit: 1,
+    Start: "2020-08-30",
+    End: "2020-08-30",
+  }
+
+  jsonData, err := GetEvents(query)
 
   if err != nil {
     t.Error(err)
   }
 
-  if collection.Title != "EONET Events" && collection.Link != baseEventsUrl {
-    t.Error("An error has likely occurred while querying the events API")
-  }
-
-  // There might be 0 recent open events, so checking for != 1 won't work
-  if len(collection.Events) > 1 {
-    t.Error("Number of open events returned exceeded the limit")
-  }
+  g := gomega.NewGomegaWithT(t)
+  g.Expect(string(jsonData)).To(gomega.MatchJSON(mockEventsJsonData))
 }
 
-func TestGetRecentClosedEvents(t *testing.T) {
-  collection, err := GetRecentClosedEvents(1)
+func TestGetEventsForCorrectUrl(t *testing.T) {
+  mockCtrl := gomock.NewController(t)
+
+  mockHTTPClient := mocks.NewMockHTTPClient(mockCtrl)
+  client = mockHTTPClient
+
+  url := "https://eonet.sci.gsfc.nasa.gov/api/v3/events?bbox=-129.02%2C50.73%2C-58.71%2C12.89&days=20&magID=mag_kts&magMax=20&magMin=1.50"
+
+  request, _ := http.NewRequest("GET", url, nil)
+
+  response := &http.Response{Body: ioutil.NopCloser(bytes.NewReader([]byte(mockEventsJsonData)))}
+
+  mockHTTPClient.EXPECT().Do(gomock.Eq(request)).Return(response, nil).Times(1)
+
+  query := EventsQueryParameters {
+    Days: 20,
+    MagID: "mag_kts",
+    MagMin: "1.50",
+    MagMax: "20",
+    Bbox: "-129.02,50.73,-58.71,12.89",
+  }
+
+  jsonData, err := GetEvents(query)
 
   if err != nil {
     t.Error(err)
   }
 
-  if collection.Title != "EONET Events" && collection.Link != baseEventsUrl {
-    t.Error("An error has likely occurred while querying the events API")
-  }
-
-  // There should always be at least 1 closed event returned
-  if len(collection.Events) != 1 {
-    t.Error("Number of closed events returned does not match the specified limit")
-  }
-}
-
-func TestGetEventsByDateBasic(t *testing.T) {
-  collection, err := GetEventsByDate("2010-01-01", "2020-01-01")
-
-  if err != nil {
-    t.Error(err)
-  }
-
-  if len(collection.Events) < 1 {
-    t.Error("There should be at least some events that occured from 2010-2020")
-  }
-}
-
-func TestGetEventsByDateBadStartDate(t *testing.T) {
-  _, err := GetEventsByDate("01-01-2010", "")
-
-  if err == nil {
-    t.Error("An invalid format for the start date was used successfully")
-  }
-}
-
-func TestGetEventsByDateBadEndDate(t *testing.T) {
-  _, err := GetEventsByDate("2010-01-01", "01-01-2020")
-
-  if err == nil {
-    t.Error("An invalid format for the end date was used successfully")
-  }
-}
-
-func TestGetEventsBySourceID(t *testing.T) {
-  collection, err := GetEventsBySourceID("PDC")
-
-  if err != nil {
-    t.Error(err)
-  }
-
-  if len(collection.Events) < 1 {
-    t.Error("There should be at least some events whose source is the Pacific Disaster Center (PDC)")
-  }
+  g := gomega.NewGomegaWithT(t)
+  g.Expect(string(jsonData)).To(gomega.MatchJSON(mockEventsJsonData))
 }

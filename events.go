@@ -1,139 +1,73 @@
 package goeonet
 
 import (
-  "encoding/json"
-  "errors"
   "fmt"
   "net/url"
-  "time"
 )
 
-const layoutISO = "2006-01-02"
+const baseEventsUrl = "https://eonet.sci.gsfc.nasa.gov/api/v3/events"
 
-type EventSource struct {
-	Id     string `json:"id"`
-	Url    string `json:"url"`
+type EventsQueryParameters struct {
+	Source string
+	Status string
+	Limit  uint
+	Days   uint
+	Start  string
+	End    string
+	MagID  string
+	MagMin string
+	MagMax string
+	Bbox   string
 }
 
-type Event struct {
-	Id          string        `json:"id"`
-	Title       string        `json:"title"`
-	Description string        `json:"description"`
-	Link        string        `json:"link"`
-	Closed      string        `json:"closed"`
-	Categories  []Category    `json:"categories"`
-	Sources     []EventSource `json:"sources"`
-	Geometrics  []Geometry    `json:"geometry"`
+func GetEvents(query EventsQueryParameters) ([]byte, error) {
+  url := createEventsApiUrl(query)
+
+  responseData, err := sendRequestToEonetApi(url.String())
+  if err != nil {
+    return nil, err
+  }
+
+  return responseData, nil
 }
 
-type eventsQuery struct {
-	source string
-	status string
-	limit  string
-	days   string
-	start  string
-	end    string
-	magID  string
-	magMin string
-	magMax string
-	bbox   string
-}
-
-func GetRecentOpenEvents(limit uint) (*Collection, error) {
-  url := createEventsApiUrl(eventsQuery{limit: fmt.Sprint(limit), status: "open"})
-
-	collection, err := queryEventsApi(url.String())
-	if err != nil {
-		return nil, err
-	}
-
-	return collection, nil
-}
-
-func GetRecentClosedEvents(limit uint) (*Collection, error) {
-	url := createEventsApiUrl(eventsQuery{limit: fmt.Sprint(limit), status: "closed"})
-
-	collection, err := queryEventsApi(url.String())
-	if err != nil {
-		return nil, err
-	}
-
-	return collection, nil
-}
-
-func GetEventsByDate(startDate, endDate string) (*Collection, error) {
-	if !isValidDate(startDate) {
-		return nil, errors.New("the starting date is invalid")
-	}
-
-	if endDate != "" && !isValidDate(endDate) {
-		return nil, errors.New("the ending date is invalid")
-	}
-
-	url := createEventsApiUrl(eventsQuery{start: startDate, end: endDate})
-
-	collection, err := queryEventsApi(url.String())
-	if err != nil {
-		return nil, err
-	}
-
-	return collection, nil
-}
-
-func isValidDate(date string) bool {
-	_, err := time.Parse(layoutISO, date)
-	if err != nil {
-		return false
-	} else {
-		return true
-	}
-}
-
-func GetEventsBySourceID(sourceID string) (*Collection, error) {
-	url := createEventsApiUrl(eventsQuery{source: sourceID})
-
-	collection, err := queryEventsApi(url.String())
-	if err != nil {
-		return nil, err
-	}
-
-	return collection, nil
-}
-
-func createEventsApiUrl(query eventsQuery) url.URL {
+func createEventsApiUrl(query EventsQueryParameters) url.URL {
 	u := url.URL {
-		Scheme: "https",
-		Host: "eonet.sci.gsfc.nasa.gov",
-		Path: "/api/v3/events",
+	   Scheme: "https",
+     Host: "eonet.sci.gsfc.nasa.gov",
+     Path: "/api/v3/events",
 	}
 	q := u.Query()
-	q.Set("source", query.source)
-	q.Set("status", query.status)
-	q.Set("limit", query.limit)
-	q.Set("days", query.days)
-	if query.start != "" {
-		q.Set("start", query.start)
-		q.Set("end", query.end)
+  if query.Source != "" {
+	   q.Set("source", query.Source)
+  }
+  if query.Status != "" {
+	   q.Set("status", query.Status)
+  }
+  if query.Limit > 0 {
+	   q.Set("limit", fmt.Sprint(query.Limit))
+  }
+  if query.Days > 0 {
+	   q.Set("days", fmt.Sprint(query.Days))
+  }
+	if query.Start != "" {
+		q.Set("start", query.Start)
+    if query.End != "" {
+		    q.Set("end", query.End)
+    }
 	}
-	q.Set("magID", query.magID)
-	q.Set("magMin", query.magMin)
-	q.Set("magMax", query.magMax)
-	q.Set("bbox", query.bbox)
+  if query.MagID != "" {
+    q.Set("magID", query.MagID)
+  }
+  if query.MagMin != "" {
+	  q.Set("magMin", query.MagMin)
+  }
+  if query.MagMax != "" {
+	  q.Set("magMax", query.MagMax)
+  }
+  if query.Bbox != "" {
+	  q.Set("bbox", query.Bbox)
+  }
 	u.RawQuery = q.Encode()
 	return u
-}
-
-func queryEventsApi(url string) (*Collection, error) {
-	responseData, err := sendRequest(url)
-	if err != nil {
-		return nil, err
-	}
-
-	var collection Collection
-
-	if err := json.Unmarshal(responseData, &collection); err != nil {
-		return nil, err
-	}
-
-	return &collection, nil
 }
