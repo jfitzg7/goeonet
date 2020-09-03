@@ -7,22 +7,6 @@ import (
 
 const baseEventsUrl = "https://eonet.sci.gsfc.nasa.gov/api/v3/events"
 
-type EventSource struct {
-	Id     string `json:"id"`
-	Url    string `json:"url"`
-}
-
-type Event struct {
-	Id          string        `json:"id"`
-	Title       string        `json:"title"`
-	Description string        `json:"description"`
-	Link        string        `json:"link"`
-	Closed      string        `json:"closed"`
-	Categories  []Category    `json:"categories"`
-	Sources     []EventSource `json:"sources"`
-	Geometrics  []Geometry    `json:"geometry"`
-}
-
 type EventsQueryParameters struct {
 	Source string
 	Status string
@@ -36,15 +20,15 @@ type EventsQueryParameters struct {
 	Bbox   string
 }
 
-func GetEvents(query EventsQueryParameters) (*Collection, error) {
+func GetEvents(query EventsQueryParameters) ([]byte, error) {
   url := createEventsApiUrl(query)
 
-  collection, err := queryEonetApi(url.String())
+  responseData, err := sendRequestToEonetApi(url.String())
   if err != nil {
     return nil, err
   }
 
-  return collection, nil
+  return responseData, nil
 }
 
 func createEventsApiUrl(query EventsQueryParameters) url.URL {

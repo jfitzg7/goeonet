@@ -5,13 +5,13 @@ import (
   "io/ioutil"
   "testing"
   "net/http"
-  "time"
 
   "github.com/golang/mock/gomock"
   "github.com/jfitzg7/goeonet/mocks"
+  "github.com/onsi/gomega"
 )
 
-const mockEventsJsonExample = `{
+const mockEventsJsonData = `{
   "title": "EONET Events",
   "description": "Natural events from EONET.",
   "link": "https://eonet.sci.gsfc.nasa.gov/api/v3/events",
@@ -57,7 +57,7 @@ func TestGetEventsWithSource(t *testing.T) {
 
   request, _ := http.NewRequest("GET", url, nil)
 
-  response := &http.Response{Body: ioutil.NopCloser(bytes.NewReader([]byte(mockEventsJsonExample)))}
+  response := &http.Response{Body: ioutil.NopCloser(bytes.NewReader([]byte(mockEventsJsonData)))}
 
   mockHTTPClient.EXPECT().Do(gomock.Eq(request)).Return(response, nil).Times(1)
 
@@ -69,13 +69,14 @@ func TestGetEventsWithSource(t *testing.T) {
     End: "2020-08-30",
   }
 
-  _, err := GetEvents(query)
+  jsonData, err := GetEvents(query)
 
   if err != nil {
     t.Error(err)
   }
 
-  client = &http.Client{Timeout: 5 * time.Second}
+  g := gomega.NewGomegaWithT(t)
+  g.Expect(string(jsonData)).To(gomega.MatchJSON(mockEventsJsonData))
 }
 
 func TestGetEventsForCorrectUrl(t *testing.T) {
@@ -88,7 +89,7 @@ func TestGetEventsForCorrectUrl(t *testing.T) {
 
   request, _ := http.NewRequest("GET", url, nil)
 
-  response := &http.Response{Body: ioutil.NopCloser(bytes.NewReader([]byte("")))}
+  response := &http.Response{Body: ioutil.NopCloser(bytes.NewReader([]byte(mockEventsJsonData)))}
 
   mockHTTPClient.EXPECT().Do(gomock.Eq(request)).Return(response, nil).Times(1)
 
@@ -100,11 +101,12 @@ func TestGetEventsForCorrectUrl(t *testing.T) {
     Bbox: "-129.02,50.73,-58.71,12.89",
   }
 
-  _, err := GetEvents(query)
+  jsonData, err := GetEvents(query)
 
   if err != nil {
     t.Error(err)
   }
 
-  client = &http.Client{Timeout: 5 * time.Second}
+  g := gomega.NewGomegaWithT(t)
+  g.Expect(string(jsonData)).To(gomega.MatchJSON(mockEventsJsonData))
 }
