@@ -1,5 +1,6 @@
+![GitHub](https://img.shields.io/github/license/jfitzg7/goeonet?color=blue)
 # EONET Client
-A client written in Golang for getting information on current natural events provided by https://eonet.sci.gsfc.nasa.gov/
+A client written in Golang for getting information on natural events provided by https://eonet.sci.gsfc.nasa.gov/
 ### Installing
 To get the latest version run:
 
@@ -7,11 +8,11 @@ To get the latest version run:
 
 Must have Golang and Git installed
 ### Why
-This package takes care of all the boilerplate code required to communicate with the EONET API so that you don't have to. All you need to do is pass the query parameters to the functions that you want to use and then you will be able to deal with the JSON response using the parser of your choice.
+This package takes care of all the boilerplate code required to communicate with the EONET API so that you don't have to. Just pass the query parameters (when necessary) to the functions you want to use and then handle the JSON response using the parser of your choice.
 #### Why no parsing?
-I chose not to parse the JSON responses into structs for the user because there are several fields in the API that can have varying types which makes it difficult to parse using the standard encoding/json package. I believe that it would be much easier to use a package that can handle JSON like this with ease, such as [jsonparser](https://github.com/buger/jsonparser) or [gabs](https://github.com/Jeffail/gabs)
+I chose not to provide any parsing for the user because there are several fields in the EONET API that can have varying types which makes it difficult to parse the JSON into structs using the standard encoding/json package. I believe that it would be better to use a package that can handle JSON like this with ease, such as [jsonparser](https://github.com/buger/jsonparser) or [gabs](https://github.com/Jeffail/gabs), so that the user can more easily navigate the responses. 
 ### Query Parameters
-The following structs can be passed to the GetEvents() and GetEventsByCategory() functions respectively in order to specify the parameters to be used in the URL query. For more information on these query parameters check out the [EONET API specification](https://eonet.sci.gsfc.nasa.gov/docs/v3)
+The following structs can be passed to the GetEvents() and GetEventsByCategory() functions respectively in order to specify the parameters to be used in the URL query. For more information on the query parameters check out the [EONET API specification](https://eonet.sci.gsfc.nasa.gov/docs/v3)
 ```go
 type EventsQueryParameters struct {
 	Source string
@@ -57,5 +58,3 @@ jsonResponse, err := goeonet.GetLayers()
 // get a list of the web service layers by category
 jsonResponse, err := goeonet.GetLayersByCategory("landslides")
 ```
-### License
-MIT
