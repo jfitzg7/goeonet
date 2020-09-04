@@ -7,6 +7,9 @@ import (
 
 const baseCategoriesUrl = "https://eonet.sci.gsfc.nasa.gov/api/v3/categories"
 
+// Used for specifying the query parameters that can be passed
+// to the GetEventsByCategory function. Keep in mind that the
+// Category field must be defined if you call GetEventsByCategory.
 type CategoriesQueryParameters struct {
 	Category string
 	Source   string
@@ -15,6 +18,7 @@ type CategoriesQueryParameters struct {
 	Days     string
 }
 
+// Get a list of all of the event categories used by the EONET API
 func GetCategories() ([]byte, error) {
 	responseData, err := sendRequestToEonetApi(baseCategoriesUrl)
 	if err != nil {
@@ -24,6 +28,8 @@ func GetCategories() ([]byte, error) {
 	return responseData, nil
 }
 
+// Get a list of all the events under a specific category. Remember to always
+// assign a value to the Category field in the query parameter.
 func GetEventsByCategory(query CategoriesQueryParameters) ([]byte, error) {
 	url, err := createCategoriesApiUrl(query)
 	if err != nil {
