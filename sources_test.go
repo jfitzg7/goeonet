@@ -1,14 +1,14 @@
 package goeonet
 
 import (
-  "bytes"
-  "io/ioutil"
-  "testing"
-  "net/http"
+	"bytes"
+	"io/ioutil"
+	"net/http"
+	"testing"
 
-  "github.com/golang/mock/gomock"
-  "github.com/jfitzg7/goeonet/mocks"
-  "github.com/onsi/gomega"
+	"github.com/golang/mock/gomock"
+	"github.com/jfitzg7/goeonet/mocks"
+	"github.com/onsi/gomega"
 )
 
 const mockSourcesJsonData = `{
@@ -26,25 +26,25 @@ const mockSourcesJsonData = `{
 }`
 
 func TestGetSources(t *testing.T) {
-  mockCtrl := gomock.NewController(t)
+	mockCtrl := gomock.NewController(t)
 
-  mockHTTPClient := mocks.NewMockHTTPClient(mockCtrl)
-  client = mockHTTPClient
+	mockHTTPClient := mocks.NewMockHTTPClient(mockCtrl)
+	client = mockHTTPClient
 
-  url := "https://eonet.sci.gsfc.nasa.gov/api/v3/sources"
+	url := "https://eonet.sci.gsfc.nasa.gov/api/v3/sources"
 
-  request, _ := http.NewRequest("GET", url, nil)
+	request, _ := http.NewRequest("GET", url, nil)
 
-  response := &http.Response{Body: ioutil.NopCloser(bytes.NewReader([]byte(mockSourcesJsonData)))}
+	response := &http.Response{Body: ioutil.NopCloser(bytes.NewReader([]byte(mockSourcesJsonData)))}
 
-  mockHTTPClient.EXPECT().Do(gomock.Eq(request)).Return(response, nil).Times(1)
+	mockHTTPClient.EXPECT().Do(gomock.Eq(request)).Return(response, nil).Times(1)
 
-  jsonData, err := GetSources()
+	jsonData, err := GetSources()
 
-  if err != nil {
-    t.Error(err)
-  }
+	if err != nil {
+		t.Error(err)
+	}
 
-  g := gomega.NewGomegaWithT(t)
-  g.Expect(string(jsonData)).To(gomega.MatchJSON(mockSourcesJsonData))
+	g := gomega.NewGomegaWithT(t)
+	g.Expect(string(jsonData)).To(gomega.MatchJSON(mockSourcesJsonData))
 }

@@ -1,14 +1,14 @@
 package goeonet
 
 import (
-  "bytes"
-  "io/ioutil"
-  "net/http"
-  "testing"
+	"bytes"
+	"io/ioutil"
+	"net/http"
+	"testing"
 
-  "github.com/golang/mock/gomock"
-  "github.com/jfitzg7/goeonet/mocks"
-  "github.com/onsi/gomega"
+	"github.com/golang/mock/gomock"
+	"github.com/jfitzg7/goeonet/mocks"
+	"github.com/onsi/gomega"
 )
 
 const mockLayersJsonData = `{
@@ -35,49 +35,49 @@ const mockLayersJsonData = `{
 }`
 
 func TestGetLayers(t *testing.T) {
-  mockCtrl := gomock.NewController(t)
+	mockCtrl := gomock.NewController(t)
 
-  mockHTTPClient := mocks.NewMockHTTPClient(mockCtrl)
-  client = mockHTTPClient
+	mockHTTPClient := mocks.NewMockHTTPClient(mockCtrl)
+	client = mockHTTPClient
 
-  url := "https://eonet.sci.gsfc.nasa.gov/api/v3/layers"
+	url := "https://eonet.sci.gsfc.nasa.gov/api/v3/layers"
 
-  request, _ := http.NewRequest("GET", url, nil)
+	request, _ := http.NewRequest("GET", url, nil)
 
-  response := &http.Response{Body: ioutil.NopCloser(bytes.NewReader([]byte(mockLayersJsonData)))}
+	response := &http.Response{Body: ioutil.NopCloser(bytes.NewReader([]byte(mockLayersJsonData)))}
 
-  mockHTTPClient.EXPECT().Do(gomock.Eq(request)).Return(response, nil).Times(1)
+	mockHTTPClient.EXPECT().Do(gomock.Eq(request)).Return(response, nil).Times(1)
 
-  jsonData, err := GetLayers()
+	jsonData, err := GetLayers()
 
-  if err != nil {
-    t.Error(err)
-  }
+	if err != nil {
+		t.Error(err)
+	}
 
-  g := gomega.NewGomegaWithT(t)
-  g.Expect(string(jsonData)).To(gomega.MatchJSON(mockLayersJsonData))
+	g := gomega.NewGomegaWithT(t)
+	g.Expect(string(jsonData)).To(gomega.MatchJSON(mockLayersJsonData))
 }
 
 func TestGetLayersByCategory(t *testing.T) {
-  mockCtrl := gomock.NewController(t)
+	mockCtrl := gomock.NewController(t)
 
-  mockHTTPClient := mocks.NewMockHTTPClient(mockCtrl)
-  client = mockHTTPClient
+	mockHTTPClient := mocks.NewMockHTTPClient(mockCtrl)
+	client = mockHTTPClient
 
-  url := "https://eonet.sci.gsfc.nasa.gov/api/v3/layers/wildfires"
+	url := "https://eonet.sci.gsfc.nasa.gov/api/v3/layers/wildfires"
 
-  request, _ := http.NewRequest("GET", url, nil)
+	request, _ := http.NewRequest("GET", url, nil)
 
-  response := &http.Response{Body: ioutil.NopCloser(bytes.NewReader([]byte(mockLayersJsonData)))}
+	response := &http.Response{Body: ioutil.NopCloser(bytes.NewReader([]byte(mockLayersJsonData)))}
 
-  mockHTTPClient.EXPECT().Do(gomock.Eq(request)).Return(response, nil).Times(1)
+	mockHTTPClient.EXPECT().Do(gomock.Eq(request)).Return(response, nil).Times(1)
 
-  jsonData, err := GetLayersByCategory("wildfires")
+	jsonData, err := GetLayersByCategory("wildfires")
 
-  if err != nil {
-    t.Error(err)
-  }
+	if err != nil {
+		t.Error(err)
+	}
 
-  g := gomega.NewGomegaWithT(t)
-  g.Expect(string(jsonData)).To(gomega.MatchJSON(mockLayersJsonData))
+	g := gomega.NewGomegaWithT(t)
+	g.Expect(string(jsonData)).To(gomega.MatchJSON(mockLayersJsonData))
 }

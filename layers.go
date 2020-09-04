@@ -1,7 +1,7 @@
 package goeonet
 
 import (
-  "net/url"
+	"net/url"
 )
 
 const baseLayersUrl = "https://eonet.sci.gsfc.nasa.gov/api/v3/layers"
@@ -22,16 +22,16 @@ func GetLayersByCategory(categoryID string) ([]byte, error) {
 }
 
 func createLayersApiUrl(categoryID string) url.URL {
-  var pathExtension string
-  if categoryID != "" {
-    pathExtension = "/" + categoryID
-  } else {
-    pathExtension = ""
-  }
-	u := url.URL {
+	var pathExtension string
+	if categoryID != "" {
+		pathExtension = "/" + categoryID
+	} else {
+		pathExtension = ""
+	}
+	u := url.URL{
 		Scheme: "https",
-		Host: "eonet.sci.gsfc.nasa.gov",
-		Path: "/api/v3/layers" + pathExtension,
+		Host:   "eonet.sci.gsfc.nasa.gov",
+		Path:   "/api/v3/layers" + pathExtension,
 	}
 	return u
 }

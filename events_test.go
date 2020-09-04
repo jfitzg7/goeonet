@@ -1,14 +1,14 @@
 package goeonet
 
 import (
-  "bytes"
-  "io/ioutil"
-  "testing"
-  "net/http"
+	"bytes"
+	"io/ioutil"
+	"net/http"
+	"testing"
 
-  "github.com/golang/mock/gomock"
-  "github.com/jfitzg7/goeonet/mocks"
-  "github.com/onsi/gomega"
+	"github.com/golang/mock/gomock"
+	"github.com/jfitzg7/goeonet/mocks"
+	"github.com/onsi/gomega"
 )
 
 const mockEventsJsonData = `{
@@ -48,65 +48,65 @@ const mockEventsJsonData = `{
 }`
 
 func TestGetEventsWithSource(t *testing.T) {
-  mockCtrl := gomock.NewController(t)
+	mockCtrl := gomock.NewController(t)
 
-  mockHTTPClient := mocks.NewMockHTTPClient(mockCtrl)
-  client = mockHTTPClient
+	mockHTTPClient := mocks.NewMockHTTPClient(mockCtrl)
+	client = mockHTTPClient
 
-  url := "https://eonet.sci.gsfc.nasa.gov/api/v3/events?end=2020-08-30&limit=1&source=InciWeb&start=2020-08-30&status=open"
+	url := "https://eonet.sci.gsfc.nasa.gov/api/v3/events?end=2020-08-30&limit=1&source=InciWeb&start=2020-08-30&status=open"
 
-  request, _ := http.NewRequest("GET", url, nil)
+	request, _ := http.NewRequest("GET", url, nil)
 
-  response := &http.Response{Body: ioutil.NopCloser(bytes.NewReader([]byte(mockEventsJsonData)))}
+	response := &http.Response{Body: ioutil.NopCloser(bytes.NewReader([]byte(mockEventsJsonData)))}
 
-  mockHTTPClient.EXPECT().Do(gomock.Eq(request)).Return(response, nil).Times(1)
+	mockHTTPClient.EXPECT().Do(gomock.Eq(request)).Return(response, nil).Times(1)
 
-  query := EventsQueryParameters{
-    Source: "InciWeb",
-    Status: "open",
-    Limit: 1,
-    Start: "2020-08-30",
-    End: "2020-08-30",
-  }
+	query := EventsQueryParameters{
+		Source: "InciWeb",
+		Status: "open",
+		Limit:  1,
+		Start:  "2020-08-30",
+		End:    "2020-08-30",
+	}
 
-  jsonData, err := GetEvents(query)
+	jsonData, err := GetEvents(query)
 
-  if err != nil {
-    t.Error(err)
-  }
+	if err != nil {
+		t.Error(err)
+	}
 
-  g := gomega.NewGomegaWithT(t)
-  g.Expect(string(jsonData)).To(gomega.MatchJSON(mockEventsJsonData))
+	g := gomega.NewGomegaWithT(t)
+	g.Expect(string(jsonData)).To(gomega.MatchJSON(mockEventsJsonData))
 }
 
 func TestGetEventsForCorrectUrl(t *testing.T) {
-  mockCtrl := gomock.NewController(t)
+	mockCtrl := gomock.NewController(t)
 
-  mockHTTPClient := mocks.NewMockHTTPClient(mockCtrl)
-  client = mockHTTPClient
+	mockHTTPClient := mocks.NewMockHTTPClient(mockCtrl)
+	client = mockHTTPClient
 
-  url := "https://eonet.sci.gsfc.nasa.gov/api/v3/events?bbox=-129.02%2C50.73%2C-58.71%2C12.89&days=20&magID=mag_kts&magMax=20&magMin=1.50"
+	url := "https://eonet.sci.gsfc.nasa.gov/api/v3/events?bbox=-129.02%2C50.73%2C-58.71%2C12.89&days=20&magID=mag_kts&magMax=20&magMin=1.50"
 
-  request, _ := http.NewRequest("GET", url, nil)
+	request, _ := http.NewRequest("GET", url, nil)
 
-  response := &http.Response{Body: ioutil.NopCloser(bytes.NewReader([]byte(mockEventsJsonData)))}
+	response := &http.Response{Body: ioutil.NopCloser(bytes.NewReader([]byte(mockEventsJsonData)))}
 
-  mockHTTPClient.EXPECT().Do(gomock.Eq(request)).Return(response, nil).Times(1)
+	mockHTTPClient.EXPECT().Do(gomock.Eq(request)).Return(response, nil).Times(1)
 
-  query := EventsQueryParameters {
-    Days: 20,
-    MagID: "mag_kts",
-    MagMin: "1.50",
-    MagMax: "20",
-    Bbox: "-129.02,50.73,-58.71,12.89",
-  }
+	query := EventsQueryParameters{
+		Days:   20,
+		MagID:  "mag_kts",
+		MagMin: "1.50",
+		MagMax: "20",
+		Bbox:   "-129.02,50.73,-58.71,12.89",
+	}
 
-  jsonData, err := GetEvents(query)
+	jsonData, err := GetEvents(query)
 
-  if err != nil {
-    t.Error(err)
-  }
+	if err != nil {
+		t.Error(err)
+	}
 
-  g := gomega.NewGomegaWithT(t)
-  g.Expect(string(jsonData)).To(gomega.MatchJSON(mockEventsJsonData))
+	g := gomega.NewGomegaWithT(t)
+	g.Expect(string(jsonData)).To(gomega.MatchJSON(mockEventsJsonData))
 }
