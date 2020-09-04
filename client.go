@@ -6,6 +6,8 @@ import (
 	"time"
 )
 
+// HTTPClient is used to help facilitate mock testing,
+// gomock uses this to generate a mock file
 type HTTPClient interface {
 	Do(req *http.Request) (*http.Response, error)
 }
