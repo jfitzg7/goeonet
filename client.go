@@ -1,3 +1,5 @@
+// Package goeonet is a client for getting information on
+// natural events provided by https://eonet.sci.gsfc.nasa.gov/
 package goeonet
 
 import (
