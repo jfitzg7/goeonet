@@ -1,3 +1,4 @@
+[![Go Report Card](https://goreportcard.com/badge/github.com/jfitzg7/goeonet)](https://goreportcard.com/report/github.com/jfitzg7/goeonet)
 ![GitHub](https://img.shields.io/github/license/jfitzg7/goeonet?color=blue)
 # EONET Client
 A client written in Golang for getting information on natural events provided by https://eonet.sci.gsfc.nasa.gov/
