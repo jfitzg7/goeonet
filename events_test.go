@@ -12,7 +12,7 @@ import (
 	"github.com/onsi/gomega"
 )
 
-const mockEventsJsonData = `{
+const mockEventsJson = `{
   "title": "EONET Events",
   "description": "Natural events from EONET.",
   "link": "https://eonet.sci.gsfc.nasa.gov/api/v3/events",
@@ -57,7 +57,7 @@ func TestGetEventsWithSource(t *testing.T) {
 	url := "https://eonet.sci.gsfc.nasa.gov/api/v3/events?end=2020-08-30&limit=1&source=InciWeb&start=2020-08-30&status=open"
 
 	request, _ := http.NewRequest("GET", url, nil)
-	response := &http.Response{Body: ioutil.NopCloser(bytes.NewReader([]byte(mockEventsJsonData)))}
+	response := &http.Response{Body: ioutil.NopCloser(bytes.NewReader([]byte(mockEventsJson)))}
 
 	mockHTTPClient.EXPECT().Do(gomock.Eq(request)).Return(response, nil).Times(1)
 
@@ -76,7 +76,7 @@ func TestGetEventsWithSource(t *testing.T) {
 	}
 
 	g := gomega.NewGomegaWithT(t)
-	g.Expect(string(jsonData)).To(gomega.MatchJSON(mockEventsJsonData))
+	g.Expect(string(jsonData)).To(gomega.MatchJSON(mockEventsJson))
 }
 
 func TestGetEventsError(t *testing.T) {
@@ -107,7 +107,7 @@ func TestGetEventsForCorrectUrl(t *testing.T) {
 	url := "https://eonet.sci.gsfc.nasa.gov/api/v3/events?bbox=-129.02%2C50.73%2C-58.71%2C12.89&days=20&magID=mag_kts&magMax=20&magMin=1.50"
 
 	request, _ := http.NewRequest("GET", url, nil)
-	response := &http.Response{Body: ioutil.NopCloser(bytes.NewReader([]byte(mockEventsJsonData)))}
+	response := &http.Response{Body: ioutil.NopCloser(bytes.NewReader([]byte(mockEventsJson)))}
 
 	mockHTTPClient.EXPECT().Do(gomock.Eq(request)).Return(response, nil).Times(1)
 
@@ -126,5 +126,5 @@ func TestGetEventsForCorrectUrl(t *testing.T) {
 	}
 
 	g := gomega.NewGomegaWithT(t)
-	g.Expect(string(jsonData)).To(gomega.MatchJSON(mockEventsJsonData))
+	g.Expect(string(jsonData)).To(gomega.MatchJSON(mockEventsJson))
 }

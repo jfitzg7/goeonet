@@ -12,7 +12,7 @@ import (
 	"github.com/onsi/gomega"
 )
 
-const mockSourcesJsonData = `{
+const mockSourcesJson = `{
 	"title": "EONET Event Sources",
 	"description": "List of all the available event sources in the EONET system",
 	"link": "https://eonet.sci.gsfc.nasa.gov/api/v3/sources",
@@ -36,7 +36,7 @@ func TestGetSources(t *testing.T) {
 
 	request, _ := http.NewRequest("GET", url, nil)
 
-	response := &http.Response{Body: ioutil.NopCloser(bytes.NewReader([]byte(mockSourcesJsonData)))}
+	response := &http.Response{Body: ioutil.NopCloser(bytes.NewReader([]byte(mockSourcesJson)))}
 
 	mockHTTPClient.EXPECT().Do(gomock.Eq(request)).Return(response, nil).Times(1)
 
@@ -47,7 +47,7 @@ func TestGetSources(t *testing.T) {
 	}
 
 	g := gomega.NewGomegaWithT(t)
-	g.Expect(string(jsonData)).To(gomega.MatchJSON(mockSourcesJsonData))
+	g.Expect(string(jsonData)).To(gomega.MatchJSON(mockSourcesJson))
 }
 
 func TestGetSourcesError(t *testing.T) {

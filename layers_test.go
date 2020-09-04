@@ -12,7 +12,7 @@ import (
 	"github.com/onsi/gomega"
 )
 
-const mockLayersJsonData = `{
+const mockLayersJson = `{
   "title": "EONET Web Service Layers",
   "description": "List of web service layers in the EONET system",
   "link": "https://eonet.sci.gsfc.nasa.gov/api/v3/layers",
@@ -45,7 +45,7 @@ func TestGetLayers(t *testing.T) {
 
 	request, _ := http.NewRequest("GET", url, nil)
 
-	response := &http.Response{Body: ioutil.NopCloser(bytes.NewReader([]byte(mockLayersJsonData)))}
+	response := &http.Response{Body: ioutil.NopCloser(bytes.NewReader([]byte(mockLayersJson)))}
 
 	mockHTTPClient.EXPECT().Do(gomock.Eq(request)).Return(response, nil).Times(1)
 
@@ -56,7 +56,7 @@ func TestGetLayers(t *testing.T) {
 	}
 
 	g := gomega.NewGomegaWithT(t)
-	g.Expect(string(jsonData)).To(gomega.MatchJSON(mockLayersJsonData))
+	g.Expect(string(jsonData)).To(gomega.MatchJSON(mockLayersJson))
 }
 
 func TestGetLayersError(t *testing.T) {
@@ -88,7 +88,7 @@ func TestGetLayersByCategory(t *testing.T) {
 
 	request, _ := http.NewRequest("GET", url, nil)
 
-	response := &http.Response{Body: ioutil.NopCloser(bytes.NewReader([]byte(mockLayersJsonData)))}
+	response := &http.Response{Body: ioutil.NopCloser(bytes.NewReader([]byte(mockLayersJson)))}
 
 	mockHTTPClient.EXPECT().Do(gomock.Eq(request)).Return(response, nil).Times(1)
 
@@ -99,5 +99,5 @@ func TestGetLayersByCategory(t *testing.T) {
 	}
 
 	g := gomega.NewGomegaWithT(t)
-	g.Expect(string(jsonData)).To(gomega.MatchJSON(mockLayersJsonData))
+	g.Expect(string(jsonData)).To(gomega.MatchJSON(mockLayersJson))
 }
