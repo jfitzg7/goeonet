@@ -6,9 +6,9 @@ import (
 
 const baseCategoriesUrl = "https://eonet.sci.gsfc.nasa.gov/api/v3/categories"
 
-// Used for specifying the query parameters that can be passed to the
-// GetEventsByCategory function. More information on the query parameters
-// can be found at https://eonet.sci.gsfc.nasa.gov/docs/v3
+// CategoriesQueryParameters is used for specifying the query parameters
+// that can be passed to the GetEventsByCategory function. More information
+// on the query parameters can be found at https://eonet.sci.gsfc.nasa.gov/docs/v3
 type CategoriesQueryParameters struct {
 	Source string
 	Status string
@@ -16,7 +16,7 @@ type CategoriesQueryParameters struct {
 	Days   string
 }
 
-// Get a list of all of the event categories used by the EONET API
+// GetCategories gets a list of all of the event categories used by the EONET API
 func GetCategories() ([]byte, error) {
 	responseData, err := sendRequestToEonetApi(baseCategoriesUrl)
 	if err != nil {
@@ -26,8 +26,8 @@ func GetCategories() ([]byte, error) {
 	return responseData, nil
 }
 
-// Get a list of all the events under a specific category. if category is == ""
-// then the behavior will be the same as calling GetCategories()
+// GetEventsByCategory gets a list of all the events under a specific category.
+// if category is == "" then the behavior will be the same as calling GetCategories()
 func GetEventsByCategory(category string, query CategoriesQueryParameters) ([]byte, error) {
 	url := createCategoriesApiUrl(category, query)
 

@@ -6,12 +6,12 @@ import (
 
 const baseLayersUrl = "https://eonet.sci.gsfc.nasa.gov/api/v3/layers"
 
-// Get a list of all the web service layers
+// GetLayers gets a list of all the web service layers
 func GetLayers() ([]byte, error) {
 	return GetLayersByCategory("")
 }
 
-// Get a list of the web service layers by category
+// GetLayersByCategory gets a list of the web service layers by category
 func GetLayersByCategory(category string) ([]byte, error) {
 	url := createLayersApiUrl(category)
 
