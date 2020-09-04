@@ -65,14 +65,13 @@ func TestGetEventsByCategory(t *testing.T) {
 	mockHTTPClient.EXPECT().Do(gomock.Eq(request)).Return(response, nil).Times(1)
 
 	query := CategoriesQueryParameters{
-		Category: "wildfires",
-		Source:   "InciWeb",
-		Status:   "open",
-		Limit:    "1",
-		Days:     "30",
+		Source: "InciWeb",
+		Status: "open",
+		Limit:  "1",
+		Days:   "30",
 	}
 
-	jsonData, err := GetEventsByCategory(query)
+	jsonData, err := GetEventsByCategory("wildfires", query)
 
 	if err != nil {
 		t.Error(err)

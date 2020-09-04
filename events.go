@@ -7,6 +7,9 @@ import (
 
 const baseEventsUrl = "https://eonet.sci.gsfc.nasa.gov/api/v3/events"
 
+// Used for specifiyng the query parameters that can be passed
+// to the GetEvents function. More information on the query parameters
+// can be found at https://eonet.sci.gsfc.nasa.gov/docs/v3
 type EventsQueryParameters struct {
 	Source string
 	Status string
@@ -20,6 +23,7 @@ type EventsQueryParameters struct {
 	Bbox   string
 }
 
+// Get a list of events based on the query parameters passed in
 func GetEvents(query EventsQueryParameters) ([]byte, error) {
 	url := createEventsApiUrl(query)
 

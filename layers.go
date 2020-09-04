@@ -6,12 +6,14 @@ import (
 
 const baseLayersUrl = "https://eonet.sci.gsfc.nasa.gov/api/v3/layers"
 
+// Get a list of all the web service layers
 func GetLayers() ([]byte, error) {
-	return GetLayersByCategoryID("")
+	return GetLayersByCategory("")
 }
 
-func GetLayersByCategory(categoryID string) ([]byte, error) {
-	url := createLayersApiUrl(categoryID)
+// Get a list of the web service layers by category
+func GetLayersByCategory(category string) ([]byte, error) {
+	url := createLayersApiUrl(category)
 
 	responseData, err := sendRequestToEonetApi(url.String())
 	if err != nil {
@@ -21,10 +23,10 @@ func GetLayersByCategory(categoryID string) ([]byte, error) {
 	return responseData, nil
 }
 
-func createLayersApiUrl(categoryID string) url.URL {
+func createLayersApiUrl(category string) url.URL {
 	var pathExtension string
-	if categoryID != "" {
-		pathExtension = "/" + categoryID
+	if category != "" {
+		pathExtension = "/" + category
 	} else {
 		pathExtension = ""
 	}
