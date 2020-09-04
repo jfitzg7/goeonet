@@ -7,7 +7,7 @@ import (
 const baseLayersUrl = "https://eonet.sci.gsfc.nasa.gov/api/v3/layers"
 
 func GetLayers() ([]byte, error) {
-	return GetLayersByCategoryID("")
+	return GetLayersByCategory("")
 }
 
 func GetLayersByCategory(categoryID string) ([]byte, error) {
