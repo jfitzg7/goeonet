@@ -10,7 +10,7 @@ func GetLayers() ([]byte, error) {
 	return GetLayersByCategoryID("")
 }
 
-func GetLayersByCategoryID(categoryID string) ([]byte, error) {
+func GetLayersByCategory(categoryID string) ([]byte, error) {
 	url := createLayersApiUrl(categoryID)
 
 	responseData, err := sendRequestToEonetApi(url.String())
