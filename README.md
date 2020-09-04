@@ -1,4 +1,5 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/jfitzg7/goeonet)](https://goreportcard.com/report/github.com/jfitzg7/goeonet)
+[![Go Doc Reference](https://godoc.org/github.com/jfitzg7/goeonet?status.svg)](https://godoc.org/github.com/jfitzg7/goeonet)
 ![GitHub](https://img.shields.io/github/license/jfitzg7/goeonet?color=blue)
 # EONET Client
 A client written in Golang for getting information on natural events provided by https://eonet.sci.gsfc.nasa.gov/. This package takes care of all the boilerplate code required to communicate with the EONET API so that you don't have to. Just pass the query parameters (when necessary) to the functions you want to use and then handle the JSON response using the parser of your choice.
