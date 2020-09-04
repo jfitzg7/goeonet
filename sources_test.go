@@ -2,6 +2,7 @@ package goeonet
 
 import (
 	"bytes"
+	"errors"
 	"io/ioutil"
 	"net/http"
 	"testing"
@@ -47,4 +48,23 @@ func TestGetSources(t *testing.T) {
 
 	g := gomega.NewGomegaWithT(t)
 	g.Expect(string(jsonData)).To(gomega.MatchJSON(mockSourcesJsonData))
+}
+
+func TestGetSourcesError(t *testing.T) {
+	mockCtrl := gomock.NewController(t)
+
+	mockHTTPClient := mocks.NewMockHTTPClient(mockCtrl)
+	client = mockHTTPClient
+
+	url := "https://eonet.sci.gsfc.nasa.gov/api/v3/sources"
+
+	request, _ := http.NewRequest("GET", url, nil)
+
+	mockHTTPClient.EXPECT().Do(gomock.Eq(request)).Return(nil, errors.New("mock error")).Times(1)
+
+	_, err := GetSources()
+
+	if err == nil {
+		t.Error(errors.New("An error should have occurred"))
+	}
 }

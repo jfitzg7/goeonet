@@ -2,6 +2,7 @@ package goeonet
 
 import (
 	"bytes"
+	"errors"
 	"io/ioutil"
 	"net/http"
 	"testing"
@@ -56,6 +57,25 @@ func TestGetLayers(t *testing.T) {
 
 	g := gomega.NewGomegaWithT(t)
 	g.Expect(string(jsonData)).To(gomega.MatchJSON(mockLayersJsonData))
+}
+
+func TestGetLayersError(t *testing.T) {
+	mockCtrl := gomock.NewController(t)
+
+	mockHTTPClient := mocks.NewMockHTTPClient(mockCtrl)
+	client = mockHTTPClient
+
+	url := "https://eonet.sci.gsfc.nasa.gov/api/v3/layers"
+
+	request, _ := http.NewRequest("GET", url, nil)
+
+	mockHTTPClient.EXPECT().Do(gomock.Eq(request)).Return(nil, errors.New("mock error")).Times(1)
+
+	_, err := GetLayers()
+
+	if err == nil {
+		t.Error(errors.New("An error should have occurred"))
+	}
 }
 
 func TestGetLayersByCategory(t *testing.T) {
