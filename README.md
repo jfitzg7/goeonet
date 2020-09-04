@@ -9,7 +9,7 @@ To get the latest version run:
 
 Must have Golang and Git installed
 ### Why no parsing?
-I chose not to provide any parsing for the user because there are several fields in the EONET API that can have varying types which makes it difficult to parse the JSON into structs using the standard encoding/json package. I believe it would be better to use a package that can handle JSON like this with ease, such as [jsonparser](https://github.com/buger/jsonparser) or [gabs](https://github.com/Jeffail/gabs), so that the user can more easily navigate the responses.
+I chose not to provide any parsing for the user because there are several fields in the EONET API that can have varying types which makes it difficult to parse the JSON into structs using the standard encoding/json package. I believe it would be better to use a package that can handle dynamic JSON with ease, such as [jsonparser](https://github.com/buger/jsonparser) or [gabs](https://github.com/Jeffail/gabs), so that the user can more easily navigate the responses.
 ### Query Parameters
 The following structs can be passed to the GetEvents() and GetEventsByCategory() functions in order to specify the parameters to be used in the URL query. For more information on the query parameters check out the [EONET API specification](https://eonet.sci.gsfc.nasa.gov/docs/v3)
 ```go
