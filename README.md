@@ -6,7 +6,7 @@ A client written in Golang for getting information on natural events provided by
 ### Installing
 To get the latest version run:
 
-`GO111MODULE=on go get github.com/jfitzg7/goeonet`
+`GO111MODULE=on go get github.com/jfitzg7/goeonet@v1.0.0`
 
 Must have Golang and Git installed
 ### Why no parsing?
