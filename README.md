@@ -38,10 +38,10 @@ type CategoriesQueryParameters struct {
 ### Examples
 ```go
 // get the 10 most recent open events
-jsonResponse, err := goeonet.GetEvents(EventsQueryParameters{Limit: 10, Status: "open"})
+jsonResponse, err := goeonet.GetEvents(goeonet.EventsQueryParameters{Limit: 10, Status: "open"})
 
 // get all events that have occurred since January 1st, 2010
-jsonResponse, err := goeonet.GetEvents(EventsQueryParameters{Start: "2010-01-01"})
+jsonResponse, err := goeonet.GetEvents(goeonet.EventsQueryParameters{Start: "2010-01-01"})
 
 // get a list of all the organizations used as sources by EONET
 jsonResponse, err := goeonet.GetSources()
@@ -50,7 +50,7 @@ jsonResponse, err := goeonet.GetSources()
 jsonResponse, err := goeonet.GetCategories()
 
 // get the 10 most recently closed wildfire events reported by InciWeb
-jsonResponse, err := goeonet.GetEventsByCategory("wildfires", CategoriesQueryParameters{Source: "InciWeb", Limit: 10, Status: "closed"})
+jsonResponse, err := goeonet.GetEventsByCategory("wildfires", goeonet.CategoriesQueryParameters{Source: "InciWeb", Limit: 10, Status: "closed"})
 
 // get a list of all the web service layers
 jsonResponse, err := goeonet.GetLayers()
