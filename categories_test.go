@@ -12,7 +12,7 @@ import (
 	"github.com/onsi/gomega"
 )
 
-const mockCategoriesJsonData = `{
+const mockCategoriesJson = `{
 	"title": "EONET Event Categories",
 	"description": "List of all the available event categories in the EONET system",
 	"link": "https://eonet.sci.gsfc.nasa.gov/api/v3/categories",
@@ -36,7 +36,7 @@ func TestGetCategories(t *testing.T) {
 	url := "https://eonet.sci.gsfc.nasa.gov/api/v3/categories"
 
 	request, _ := http.NewRequest("GET", url, nil)
-	response := &http.Response{Body: ioutil.NopCloser(bytes.NewReader([]byte(mockCategoriesJsonData)))}
+	response := &http.Response{Body: ioutil.NopCloser(bytes.NewReader([]byte(mockCategoriesJson)))}
 
 	mockHTTPClient.EXPECT().Do(gomock.Eq(request)).Return(response, nil).Times(1)
 
@@ -47,7 +47,7 @@ func TestGetCategories(t *testing.T) {
 	}
 
 	g := gomega.NewGomegaWithT(t)
-	g.Expect(string(jsonData)).To(gomega.MatchJSON(mockCategoriesJsonData))
+	g.Expect(string(jsonData)).To(gomega.MatchJSON(mockCategoriesJson))
 }
 
 func TestGetCategoriesError(t *testing.T) {
@@ -78,7 +78,7 @@ func TestGetEventsByCategory(t *testing.T) {
 	url := "https://eonet.sci.gsfc.nasa.gov/api/v3/categories/wildfires?days=30&limit=1&source=InciWeb&status=open"
 
 	request, _ := http.NewRequest("GET", url, nil)
-	response := &http.Response{Body: ioutil.NopCloser(bytes.NewReader([]byte(mockCategoriesJsonData)))}
+	response := &http.Response{Body: ioutil.NopCloser(bytes.NewReader([]byte(mockCategoriesJson)))}
 
 	mockHTTPClient.EXPECT().Do(gomock.Eq(request)).Return(response, nil).Times(1)
 
@@ -96,5 +96,5 @@ func TestGetEventsByCategory(t *testing.T) {
 	}
 
 	g := gomega.NewGomegaWithT(t)
-	g.Expect(string(jsonData)).To(gomega.MatchJSON(mockCategoriesJsonData))
+	g.Expect(string(jsonData)).To(gomega.MatchJSON(mockCategoriesJson))
 }

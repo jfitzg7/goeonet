@@ -12,7 +12,7 @@ import (
 	"github.com/onsi/gomega"
 )
 
-const mockMagnitudesJsonData = `{
+const mockMagnitudesJson = `{
 	"title": "EONET Event Magnitudes",
 	"description": "List of all the available event magnitudes in the EONET system",
 	"link": "https://eonet.sci.gsfc.nasa.gov/api/v3/magnitudes",
@@ -54,7 +54,7 @@ func TestGetMagnitudes(t *testing.T) {
 
 	request, _ := http.NewRequest("GET", url, nil)
 
-	response := &http.Response{Body: ioutil.NopCloser(bytes.NewReader([]byte(mockMagnitudesJsonData)))}
+	response := &http.Response{Body: ioutil.NopCloser(bytes.NewReader([]byte(mockMagnitudesJson)))}
 
 	mockHTTPClient.EXPECT().Do(gomock.Eq(request)).Return(response, nil).Times(1)
 
@@ -65,7 +65,7 @@ func TestGetMagnitudes(t *testing.T) {
 	}
 
 	g := gomega.NewGomegaWithT(t)
-	g.Expect(string(jsonData)).To(gomega.MatchJSON(mockMagnitudesJsonData))
+	g.Expect(string(jsonData)).To(gomega.MatchJSON(mockMagnitudesJson))
 }
 
 func TestGetGetMagnitudesError(t *testing.T) {
