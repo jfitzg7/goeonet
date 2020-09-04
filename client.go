@@ -19,7 +19,10 @@ func init() {
 }
 
 func sendRequestToEonetApi(url string) ([]byte, error) {
-	request, _ := http.NewRequest("GET", url, nil)
+	request, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
 
 	response, err := client.Do(request)
 	if err != nil {

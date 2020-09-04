@@ -2,6 +2,7 @@ package goeonet
 
 import (
 	"bytes"
+	"errors"
 	"io/ioutil"
 	"net/http"
 	"testing"
@@ -35,7 +36,6 @@ func TestGetCategories(t *testing.T) {
 	url := "https://eonet.sci.gsfc.nasa.gov/api/v3/categories"
 
 	request, _ := http.NewRequest("GET", url, nil)
-
 	response := &http.Response{Body: ioutil.NopCloser(bytes.NewReader([]byte(mockCategoriesJsonData)))}
 
 	mockHTTPClient.EXPECT().Do(gomock.Eq(request)).Return(response, nil).Times(1)
@@ -50,6 +50,25 @@ func TestGetCategories(t *testing.T) {
 	g.Expect(string(jsonData)).To(gomega.MatchJSON(mockCategoriesJsonData))
 }
 
+func TestGetCategoriesError(t *testing.T) {
+	mockCtrl := gomock.NewController(t)
+
+	mockHTTPClient := mocks.NewMockHTTPClient(mockCtrl)
+	client = mockHTTPClient
+
+	url := "https://eonet.sci.gsfc.nasa.gov/api/v3/categories"
+
+	request, _ := http.NewRequest("GET", url, nil)
+
+	mockHTTPClient.EXPECT().Do(gomock.Eq(request)).Return(nil, errors.New("mock error")).Times(1)
+
+	_, err := GetCategories()
+
+	if err == nil {
+		t.Error(errors.New("An error should have occurred"))
+	}
+}
+
 func TestGetEventsByCategory(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 
@@ -59,7 +78,6 @@ func TestGetEventsByCategory(t *testing.T) {
 	url := "https://eonet.sci.gsfc.nasa.gov/api/v3/categories/wildfires?days=30&limit=1&source=InciWeb&status=open"
 
 	request, _ := http.NewRequest("GET", url, nil)
-
 	response := &http.Response{Body: ioutil.NopCloser(bytes.NewReader([]byte(mockCategoriesJsonData)))}
 
 	mockHTTPClient.EXPECT().Do(gomock.Eq(request)).Return(response, nil).Times(1)
