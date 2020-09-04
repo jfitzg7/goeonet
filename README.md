@@ -4,11 +4,8 @@
 # EONET Client
 A client written in Golang for getting information on natural events provided by https://eonet.sci.gsfc.nasa.gov/. This package takes care of all the boilerplate code required to communicate with the EONET API so that you don't have to. Just pass the query parameters (when necessary) to the functions you want to use and then handle the JSON response using the parser of your choice.
 ### Installing
-To get the latest version run:
+To get the latest version use: `GO111MODULE=on go get github.com/jfitzg7/goeonet@v1.0.0`
 
-`GO111MODULE=on go get github.com/jfitzg7/goeonet@v1.0.0`
-
-Must have Golang and Git installed
 ### Why no parsing?
 I chose not to provide any parsing for the user because there are several fields in the EONET API that can have varying types which makes it difficult to parse the JSON into structs using the standard encoding/json package. I believe it would be better to use a package that can handle dynamic JSON with ease, such as [jsonparser](https://github.com/buger/jsonparser) or [gabs](https://github.com/Jeffail/gabs), so that the user can more easily navigate the responses.
 ### Query Parameters
