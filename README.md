@@ -56,4 +56,7 @@ jsonResponse, err := goeonet.GetLayers()
 
 // get a list of the web service layers by category
 jsonResponse, err := goeonet.GetLayersByCategory("landslides")
+
+// get a list of all the units used for measuring the magnitudes of specific events
+jsonResponse, err := goeonet.GetMagnitudes()
 ```
