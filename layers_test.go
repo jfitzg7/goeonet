@@ -58,7 +58,7 @@ func TestGetLayers(t *testing.T) {
   g.Expect(string(jsonData)).To(gomega.MatchJSON(mockLayersJsonData))
 }
 
-func TestGetLayersByCategoryID(t *testing.T) {
+func TestGetLayersByCategory(t *testing.T) {
   mockCtrl := gomock.NewController(t)
 
   mockHTTPClient := mocks.NewMockHTTPClient(mockCtrl)
@@ -72,7 +72,7 @@ func TestGetLayersByCategoryID(t *testing.T) {
 
   mockHTTPClient.EXPECT().Do(gomock.Eq(request)).Return(response, nil).Times(1)
 
-  jsonData, err := GetLayersByCategoryID("wildfires")
+  jsonData, err := GetLayersByCategory("wildfires")
 
   if err != nil {
     t.Error(err)
