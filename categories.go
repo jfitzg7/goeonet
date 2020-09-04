@@ -10,10 +10,10 @@ const baseCategoriesUrl = "https://eonet.sci.gsfc.nasa.gov/api/v3/categories"
 // GetEventsByCategory function. More information on the query parameters
 // can be found at https://eonet.sci.gsfc.nasa.gov/docs/v3
 type CategoriesQueryParameters struct {
-	Source   string
-	Status   string
-	Limit    string
-	Days     string
+	Source string
+	Status string
+	Limit  string
+	Days   string
 }
 
 // Get a list of all of the event categories used by the EONET API
