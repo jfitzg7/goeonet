@@ -48,6 +48,41 @@ const mockEventsJson = `{
   ]
 }`
 
+const mockGeoJsonEventsJson = `{
+	"type": "FeatureCollection",
+	"features": [
+  	{
+			"type": "Feature",
+			"properties": {
+				"id": "EONET_5043",
+				"title": "Wildfires - Tillamook County (Pike Road Fire), Oregon, United States",
+        "description": null,
+        "link": "https://eonet.sci.gsfc.nasa.gov/api/v3/events/EONET_5043/geojson",
+        "closed": null,
+				"date": "2020-09-11T13:22:00Z",
+				"magnitudeValue": null,
+				"magnitudeUnit": null,
+        "categories": [
+					{
+						"id": "wildfires",
+						"title": "Wildfires"
+		      }
+				],
+				"sources": [
+					{
+						"id": "PDC",
+						"url": "http://emops.pdc.org/emops/?hazard_id=114275"
+					}
+				]
+      },
+      "geometry": {
+				"type": "Point",
+				"coordinates": [ -123.84452, 45.52145 ]
+			}
+		}
+	]
+}`
+
 func TestGetEventsWithSource(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 
@@ -127,4 +162,25 @@ func TestGetEventsForCorrectUrl(t *testing.T) {
 
 	g := gomega.NewGomegaWithT(t)
 	g.Expect(string(jsonData)).To(gomega.MatchJSON(mockEventsJson))
+}
+
+func TestGetGeoJsonEvents(t *testing.T) {
+	mockCtrl := gomock.NewController(t)
+
+	mockHTTPClient := mocks.NewMockHTTPClient(mockCtrl)
+	client = mockHTTPClient
+
+	request, _ := http.NewRequest("GET", baseGeoJsonEventsUrl, nil)
+	response := &http.Response{Body: ioutil.NopCloser(bytes.NewReader([]byte(mockGeoJsonEventsJson)))}
+
+	mockHTTPClient.EXPECT().Do(gomock.Eq(request)).Return(response, nil).Times(1)
+
+	jsonData, err := GetGeoJsonEvents(EventsQueryParameters{})
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	g := gomega.NewGomegaWithT(t)
+	g.Expect(string(jsonData)).To(gomega.MatchJSON(mockGeoJsonEventsJson))
 }
